@@ -12,9 +12,7 @@ $ ceph osd pool create images 128
 
 在```Controller```建立 Ceph 驗證與權限：
 ```sh
-$ ceph auth get-or-create client.cinder mon 'allow r' osd 'allow class-read object_prefix rbd_children, allow rwx pool=volumes, allow rwx pool=vms, allow rx pool=images'
 $ ceph auth get-or-create client.glance mon 'allow r' osd 'allow class-read object_prefix rbd_children, allow rwx pool=images'
-$ ceph auth get-or-create client.cinder-backup mon 'allow r' osd 'allow class-read object_prefix rbd_children, allow rwx pool=backups'
 ```
 
 在```Controller```複製認證金鑰給```Glance```節點使用：
