@@ -58,37 +58,6 @@ iface eth0 inet static
 ```
 > 若要改網卡名稱，可以編輯```/etc/udev/rules.d/70-persistent-net.rules```。
 
-一個簡易的設定腳本：
-```sh
-ID=$(ip route get 8.8.8.8 | awk '{print $7; exit}' | grep -o "[0-9]*$")
-MANAGE_ETH=eth2
-TUNNEL_ETH=eth0
-PUBLIC_ETH=eth1
-echo "auto lo" | sudo tee /etc/network/interfaces
-echo "
-auto ${MANAGE_ETH}
-iface ${MANAGE_ETH} inet static
-        address 10.0.0.${ID}
-        netmask 255.255.255.0
-        gateway 10.0.0.1
-        dns-nameservers 8.8.8.8
-" | sudo tee -a /etc/network/interfaces
-
-echo "
-auto ${TUNNEL_ETH}
-iface ${TUNNEL_ETH} inet static
-        address 10.0.1.${ID}
-        netmask 255.255.255.0
-" | sudo tee -a /etc/network/interfaces
-
-echo "
-auto ${PUBLIC_ETH}
-iface ${PUBLIC_ETH} inet manual
-        up ip link set dev \$IFACE up
-        down ip link set dev \$IFACE down
-" | sudo tee -a /etc/network/interfaces
-```
-
 ### Controller Node 設定
 這邊將第一張網卡介面設定為 ```Management（管理網路）```：
 * IP address：10.0.0.11

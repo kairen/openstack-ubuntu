@@ -1,4 +1,16 @@
-# Network Time Protocol (NTP)
+# 基本套件環境安裝
+本節將說明部署 OpenStack 前的初步軟體安裝與步驟，其包含安裝 Database、Message Queue、NTP 等，如以下目錄所示：
+
+- [Network Time Protocol](#network-time-protocol)
+    - [Controller 節點設定](#controller-節點設定)
+    - [其他節點設定](#其他節點設定)
+    - [驗證設定](#驗證設定)
+- [安裝 OpenStack 套件](#安裝-openStack-套件)
+- [SQL Database 安裝](#sql-database-安裝)
+- [Message queue 安裝](#message-queue-安裝)
+- [提醒](#提醒)
+
+## Network Time Protocol
 由於要讓各節點的時間能夠同步，我們需要安裝```ntp```套件來提供服務，這邊推薦將 NTP Server 安裝於 Controller 上，再讓其他節點進行關聯即可。
 
 ### Controller 節點設定
@@ -20,18 +32,19 @@ server 2.tw.pool.ntp.org
 server 3.asia.pool.ntp.org
 server 0.asia.pool.ntp.org
 ```
-將 ```NTP_SERVER``` 替換為主機名稱或更準確的（lower stratum） NTP 伺服器 IP 地址。這個設定支援多個 server 關鍵字。
-> 如果系統有```/var/lib/ntp/ntp.conf.dhcp```存在，請將它刪除。
 
+將 ```NTP_SERVER``` 替換為主機名稱或更準確的（lower stratum） NTP 伺服器 IP 地址。這個設定支援多個 server 關鍵字。
 > 如果需要切換系統時區至台灣可以使用以下指令：
 ```sh
 $ sudo timedatectl set-timezone Asia/Taipei
 ```
 
-
-完成後，重啟服務：
+完成後重新啟動服務：
 ```sh
 $ sudo service ntp restart
+```
+> ```sh
+$ sudo service chrony restart
 ```
 
 ### 其他節點設定
@@ -44,16 +57,18 @@ $ sudo apt-get install -y ntp
 ```sh
 server 10.0.0.11 iburst
 ```
-> 如果系統有```/var/lib/ntp/ntp.conf.dhcp```存在，請將它刪除。
 
 > 如果需要切換系統時區至台灣可以使用以下指令：
 ```sh
 $ sudo timedatectl set-timezone Asia/Taipei
 ```
 
-完成後，重啟服務：
+完成後重新啟動服務：
 ```sh
 $ sudo service ntp restart
+```
+> ```sh
+$ sudo service chrony restart
 ```
 
 ### 驗證設定
@@ -93,7 +108,7 @@ ind assid status  conf reach auth condition  last_event cnt
   1 21181  963a   yes   yes  none  sys.peer    sys_peer  3
 ```
 
-# 安裝OpenStack套件
+## 安裝 OpenStack 套件
 接下來我們需在每個節點安裝 Openstack 相關套件，但由於 Ubuntu 的版本差異，會影響 OpenStack 支援的版本，在安裝時要特別注意是否支援，才會有對應的 Repository 可以使用，支援狀況如下圖：
 ![Ubuntu](images/openstack_support.png)
 
@@ -112,7 +127,7 @@ $ sudo apt-get update && sudo apt-get -y dist-upgrade
 ```
 > 如果 Upgrade 包含了新的核心套件的話，請重新開機。
 
-# SQL database 安裝
+## SQL database 安裝
 大部份的 OpenStack 套件服務都是使用 SQL 資料庫來儲存訊息，該資料庫一般運作於```Controller```上。以下我們使用了 MariaDB 或 MySQL 來當作各套件的資訊儲存。OpenStack 也支援了其他資料庫，諸如：PostgreSQL。這邊透過```apt-get```來安裝 MariaDB 套件：
 ```sh
 $ sudo apt-get install -y mariadb-server python-pymysql
@@ -152,7 +167,7 @@ $ mysql -u root -p < mysql.sql
 
 除了更換密碼外，其餘每個項目都輸入```yes```，並設置對應資訊。
 
-# Message queue 安裝
+## Message queue 安裝
 OpenStack 使用 Message Queue 來對整個叢集提供協調與狀態訊息收集。Openstack 支援的 Message Queue 包含以下[RabbitMQ](http://www.rabbitmq.com/)、[Qpid](http://qpid.apache.org/)、[ZeroMQ](http://zeromq.org/)。但是大多數的釋出版本支援特殊的 Message Queue 服務，這邊我們使用了```RabbitMQ```來實現，並安裝於```Controller```節點上，透過```apt-get```安裝套件：
 ```sh
 $ sudo apt-get install -y rabbitmq-server
@@ -173,7 +188,7 @@ Setting permissions for user "openstack" in vhost "/" ...
 ...done.
 ```
 
-# <font color=red> 提醒 </font>
+## <font color=red> 提醒 </font>
 接下來會依序針對 OpenStack 的基礎套件進行安裝與設定教學，若發現有設定格式中有 ```...``` 代表上面有預設設定的其他參數，若沒提示```要註解掉```，請不要修改：
 ```
 [DEFAULT]

@@ -19,7 +19,6 @@
 
 > 如果您選擇安裝在虛擬機上，請確認虛擬機是否允許混雜模式，並關閉 MAC 地址，在外部網絡上的過濾。
 
-
 ### 網路分配與說明
 這邊採用 ```Neutron Provider networks``` 模式來提供 Layer 2 虛擬化網路給虛擬機使用，本架構最小安裝情況下會使用一台的 Controller 以及兩台 Compute 節點（可依服務需求增加），在不同節點上需要提供對映的多張網卡（NIC）來設定給不同網路使用：
 * **Management（管理網路）**：10.0.0.0/24，需要一個 Gateway 並設定為 10.0.0.1。
@@ -52,29 +51,6 @@ iface eth0 inet static
          dns-nameservers 8.8.8.8
 ```
 > 若要改網卡名稱，可以編輯```/etc/udev/rules.d/70-persistent-net.rules```。
-
-一個簡易的設定腳本：
-```sh
-ID=$(ip route get 8.8.8.8 | awk '{print $7; exit}' | grep -o "[0-9]*$")
-MANAGE_ETH=eth0
-PUBLIC_ETH=eth1
-echo "auto lo" | sudo tee /etc/network/interfaces
-echo "
-auto ${MANAGE_ETH}
-iface ${MANAGE_ETH} inet static
-         address 10.0.0.${ID}
-         netmask 255.255.255.0
-         gateway 10.0.0.1
-         dns-nameservers 8.8.8.8
-" | sudo tee -a /etc/network/interfaces
-
-echo "
-auto ${PUBLIC_ETH}
-iface ${PUBLIC_ETH} inet manual
-         up ip link set dev \$IFACE up
-         down ip link set dev \$IFACE down
-" | sudo tee -a /etc/network/interfaces
-```
 
 ### Controller Node 設定
 這邊將第一張網卡介面設定為 ```Management（管理網路）```：
