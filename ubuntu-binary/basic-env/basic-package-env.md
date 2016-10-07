@@ -145,8 +145,8 @@ $ sudo apt-get install -y mariadb-server python-pymysql
 
 安裝過程中需要設定```root```帳號的密碼，這邊設定為```passwd```，。
 
-完成安裝後，需要建立並編輯```/etc/mysql/conf.d/openstack.cnf```來設定資料庫。在```[mysqld]```部分加入以下修改：
-```sh
+完成安裝後，需要建立並編輯```/etc/mysql/mariadb.conf.d/openstack.cnf```來設定資料庫。在```[mysqld]```部分加入以下修改：
+```
 [mysqld]
 bind-address = 10.0.0.11
 
@@ -156,7 +156,7 @@ max_connections = 4096
 collation-server = utf8_general_ci
 character-set-server = utf8
 ```
-> 這邊的檔案 ```mysqld_openstack.cnf``` 是可以修改名稱的。
+> 這邊的檔案 ```openstack.cnf``` 是可以修改名稱的。
 
 完成後，重新啟動 MySQL 服務：
 ```sh
