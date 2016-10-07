@@ -27,7 +27,7 @@ $ git push
 3. 在 GitHub 上提教一個 Pull Request。
 4. 持續針對專案的 Repository 進行更新：
 ```sh
-$ git remote add upstream  https://github.com/imac-cloud/openstack-ubuntu.git
+$ git remote add upstream  https://github.com/kairen/openstack-ubuntu.git
 $ git fetch upstream
 $ git checkout master
 $ git rebase upstream/master
