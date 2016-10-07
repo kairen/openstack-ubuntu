@@ -6,8 +6,10 @@
     - [其他節點設定](#其他節點設定)
     - [驗證設定](#驗證設定)
 - [安裝 OpenStack 套件](#安裝-openStack-套件)
+- [OpenStack Client 安裝](#openstack-client-安裝)
 - [SQL Database 安裝](#sql-database-安裝)
 - [Message queue 安裝](#message-queue-安裝)
+- [Memcached](#memcached)
 - [提醒](#提醒)
 
 ## Network Time Protocol
@@ -109,23 +111,30 @@ ind assid status  conf reach auth condition  last_event cnt
 ```
 
 ## 安裝 OpenStack 套件
-接下來我們需在每個節點安裝 Openstack 相關套件，但由於 Ubuntu 的版本差異，會影響 OpenStack 支援的版本，在安裝時要特別注意是否支援，才會有對應的 Repository 可以使用，支援狀況如下圖：
+接下來我們需在`每台節點`安裝 Openstack 相關套件，但由於 Ubuntu 的版本差異，會影響 [OpenStack 支援的版本](https://wiki.ubuntu.com/OpenStack/CloudArchive)，在安裝時要特別注意是否支援，才會有對應的 Repository 可以使用，支援狀況如下圖：
 ![Ubuntu](images/openstack_support.png)
 
-若是 Ubuntu ```15.04 ``` 以下的版本，需加入 Repository 來獲取套件：
+在安裝開始前，需要先加入 Repository 來獲取套件來源：
 ```sh
 $ sudo apt-get install -y software-properties-common
-$ sudo add-apt-repository -y cloud-archive:mitaka
+$ sudo add-apt-repository -y cloud-archive:newton
 ```
-> 若要安裝 ``` pre-release``` 測試版本，修改為```cloud-archive:mitaka-proposed```。
+> 若要安裝 ``` pre-release``` 測試版本，修改為```cloud-archive:${ver_name}-proposed```。
 
-> 若要安裝 ```liberty```，修改為```cloud-archive:liberty```。
+> 若要安裝 `liberty` 或 `mitaka`，修改為 `cloud-archive:${ver_name}`。可以參考 [VersionTracking](https://wiki.ubuntu.com/OpenStack/VersionTracking)
 
 更新 Repository 與系統核心套件：
 ```sh
 $ sudo apt-get update && sudo apt-get -y dist-upgrade
 ```
-> 如果 Upgrade 包含了新的核心套件的話，請重新開機。
+> 如果 Upgrade 包含了新的核心套件的話請重新開機。
+
+## OpenStack Client 安裝
+若該節點為主要操作 OpenStack 的節點，請安裝以下工具來提供叢集操作
+```sh
+$ sudo apt-get install -y python-openstackclient
+```
+> OpenStack Client 從 Liberty 版本開始整合了各種服務的 API。
 
 ## SQL database 安裝
 大部份的 OpenStack 套件服務都是使用 SQL 資料庫來儲存訊息，該資料庫一般運作於```Controller```上。以下我們使用了 MariaDB 或 MySQL 來當作各套件的資訊儲存。OpenStack 也支援了其他資料庫，諸如：PostgreSQL。這邊透過```apt-get```來安裝 MariaDB 套件：
@@ -136,12 +145,14 @@ $ sudo apt-get install -y mariadb-server python-pymysql
 
 安裝過程中需要設定```root```帳號的密碼，這邊設定為```passwd```，。
 
-完成安裝後，需要建立並編輯```/etc/mysql/conf.d/mysqld_openstack.cnf```來設定資料庫。在```[mysqld]```部分加入以下修改：
+完成安裝後，需要建立並編輯```/etc/mysql/conf.d/openstack.cnf```來設定資料庫。在```[mysqld]```部分加入以下修改：
 ```sh
 [mysqld]
 bind-address = 10.0.0.11
+
 default-storage-engine = innodb
 innodb_file_per_table
+max_connections = 4096
 collation-server = utf8_general_ci
 character-set-server = utf8
 ```
@@ -186,6 +197,23 @@ Creating user "openstack" ...
 $ sudo rabbitmqctl set_permissions openstack ".*" ".*" ".*"
 Setting permissions for user "openstack" in vhost "/" ...
 ...done.
+```
+
+## Memcached
+由於 Keystone 的身份認證服務機制使用了 Memcached 作為快取 Tokens，一般 memcached 服務安裝於 `Controller` 節點。而對於生產環境建議啟動防火牆、認證與加密來保護它。安裝方式如下：
+```sh
+$ sudo apt-get install -y memcached python-memcache
+```
+
+接著編輯 `/etc/memcached.conf` 設定檔，
+並設定服務使用 `controller` 節點的 Management IP 來提供其他節點存取：
+```
+-l 10.0.0.11
+```
+
+完成後重新啟動服務：
+```sh
+$ sudo service memcached restart
 ```
 
 ## <font color=red> 提醒 </font>
