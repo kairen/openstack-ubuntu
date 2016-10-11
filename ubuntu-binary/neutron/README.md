@@ -588,7 +588,7 @@ password = NEUTRON_PASS
 ### Compute 設定 ML2
 在 Neutron 的 ML2 Plugins 中會使用到多種 Agent 來提供網路虛擬化功能，其中較為常見的為 Open vSwitch 與 Linux Bridge 兩種，然而之間各有其好處，這邊主要針對 Open vSwitch 進行說明，而 Linux Birdge 可以參考註解說明。
 
-#### Compute Linux bridge agent
+#### Compute Open vswitch agent
 接著要設定 Open vSwitch agent，編輯`/etc/neutron/plugins/ml2/openvswitch_agent.ini`在`[ovs]`部分加入以下設定：
 ```
 [ovs]
