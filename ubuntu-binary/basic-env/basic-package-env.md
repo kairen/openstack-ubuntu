@@ -13,10 +13,10 @@
 - [提醒](#提醒)
 
 ## Network Time Protocol
-由於要讓各節點的時間能夠同步，我們需要安裝```ntp```套件來提供服務，這邊推薦將 NTP Server 安裝於 Controller 上，再讓其他節點進行關聯即可。
+由於要讓各節點的時間能夠同步，我們需要安裝`ntp`套件來提供服務，這邊推薦將 NTP Server 安裝於 Controller 上，再讓其他節點進行關聯即可。
 
 ### Controller 節點設定
-在 Controller 節點上，我們可以透過```apt-get```來安裝相關套件：
+在 Controller 節點上，我們可以透過`apt-get`來安裝相關套件：
 ```sh
 $ sudo apt-get install -y ntp
 ```
@@ -24,9 +24,9 @@ $ sudo apt-get install -y ntp
 ```sh
 $ sudo apt-get install chrony
 ```
-> 若要修改設定檔則編輯```/etc/chrony/chrony.conf```。基本設定上與 ntp 雷同。
+> 若要修改設定檔則編輯`/etc/chrony/chrony.conf`。基本設定上與 ntp 雷同。
 
-完成安裝後，預設 NTP 會透過公有的伺服器來同步時間，但也可以修改```/etc/ntp.conf```來選擇伺服器：
+完成安裝後，預設 NTP 會透過公有的伺服器來同步時間，但也可以修改`/etc/ntp.conf`來選擇伺服器：
 ```sh
 restrict 10.0.0.0 mask 255.255.255.0 nomodify notrap
 
@@ -35,7 +35,7 @@ server 3.asia.pool.ntp.org
 server 0.asia.pool.ntp.org
 ```
 
-將 ```NTP_SERVER``` 替換為主機名稱或更準確的（lower stratum） NTP 伺服器 IP 地址。這個設定支援多個 server 關鍵字。
+將`NTP_SERVER`替換為主機名稱或更準確的（lower stratum） NTP 伺服器 IP 地址。這個設定支援多個 server 關鍵字。
 > 如果需要切換系統時區至台灣可以使用以下指令：
 ```sh
 $ sudo timedatectl set-timezone Asia/Taipei
@@ -55,7 +55,7 @@ $ sudo service chrony restart
 $ sudo apt-get install -y ntp
 ```
 
-完成安裝後，編輯```/etc/ntp.conf```檔案，註解掉所有```server```的參數，並將其設定為 Controller IP：
+完成安裝後，編輯`/etc/ntp.conf`檔案，註解掉所有`server`的參數，並將其設定為 Controller IP：
 ```sh
 server 10.0.0.11 iburst
 ```
@@ -119,7 +119,7 @@ ind assid status  conf reach auth condition  last_event cnt
 $ sudo apt-get install -y software-properties-common
 $ sudo add-apt-repository -y cloud-archive:newton
 ```
-> 若要安裝 ``` pre-release``` 測試版本，修改為```cloud-archive:${ver_name}-proposed```。
+> 若要安裝 `pre-release`測試版本，修改為`cloud-archive:${ver_name}-proposed`。
 
 > 若要安裝 `liberty` 或 `mitaka`，修改為 `cloud-archive:${ver_name}`。可以參考 [VersionTracking](https://wiki.ubuntu.com/OpenStack/VersionTracking)
 
@@ -137,15 +137,15 @@ $ sudo apt-get install -y python-openstackclient
 > OpenStack Client 從 Liberty 版本開始整合了各種服務的 API。
 
 ## SQL database 安裝
-大部份的 OpenStack 套件服務都是使用 SQL 資料庫來儲存訊息，該資料庫一般運作於```Controller```上。以下我們使用了 MariaDB 或 MySQL 來當作各套件的資訊儲存。OpenStack 也支援了其他資料庫，諸如：PostgreSQL。這邊透過```apt-get```來安裝 MariaDB 套件：
+大部份的 OpenStack 套件服務都是使用 SQL 資料庫來儲存訊息，該資料庫一般運作於`Controller`上。以下我們使用了 MariaDB 或 MySQL 來當作各套件的資訊儲存。OpenStack 也支援了其他資料庫，諸如：PostgreSQL。這邊透過`apt-get`來安裝 MariaDB 套件：
 ```sh
 $ sudo apt-get install -y mariadb-server python-pymysql
 ```
 > 記住 Python MySQL 和 MariaDB 是相容的。
 
-安裝過程中需要設定```root```帳號的密碼，這邊設定為```passwd```，。
+安裝過程中需要設定`root`帳號的密碼，這邊設定為`passwd`，。
 
-完成安裝後，需要建立並編輯```/etc/mysql/mariadb.conf.d/openstack.cnf```來設定資料庫。在```[mysqld]```部分加入以下修改：
+完成安裝後，需要建立並編輯`/etc/mysql/mariadb.conf.d/openstack.cnf`來設定資料庫。在`[mysqld]`部分加入以下修改：
 ```
 [mysqld]
 bind-address = 10.0.0.11
@@ -156,7 +156,7 @@ max_connections = 4096
 collation-server = utf8_general_ci
 character-set-server = utf8
 ```
-> 這邊的檔案 ```openstack.cnf``` 是可以修改名稱的。
+> 這邊的檔案`openstack.cnf`是可以修改名稱的。
 
 完成後，重新啟動 MySQL 服務：
 ```sh
@@ -176,15 +176,15 @@ $ mysqldump --user=root -p --all-databases > mysql.sql
 $ mysql -u root -p < mysql.sql
 ```
 
-除了更換密碼外，其餘每個項目都輸入```yes```，並設置對應資訊。
+除了更換密碼外，其餘每個項目都輸入`yes`，並設置對應資訊。
 
 ## Message queue 安裝
-OpenStack 使用 Message Queue 來對整個叢集提供協調與狀態訊息收集。Openstack 支援的 Message Queue 包含以下[RabbitMQ](http://www.rabbitmq.com/)、[Qpid](http://qpid.apache.org/)、[ZeroMQ](http://zeromq.org/)。但是大多數的釋出版本支援特殊的 Message Queue 服務，這邊我們使用了```RabbitMQ```來實現，並安裝於```Controller```節點上，透過```apt-get```安裝套件：
+OpenStack 使用 Message Queue 來對整個叢集提供協調與狀態訊息收集。Openstack 支援的 Message Queue 包含以下[RabbitMQ](http://www.rabbitmq.com/)、[Qpid](http://qpid.apache.org/)、[ZeroMQ](http://zeromq.org/)。但是大多數的釋出版本支援特殊的 Message Queue 服務，這邊我們使用了`RabbitMQ`來實現，並安裝於`Controller`節點上，透過`apt-get`安裝套件：
 ```sh
 $ sudo apt-get install -y rabbitmq-server
 ```
 
-安裝完成後，新增一個名稱為 ```openstack``` 的 User:
+安裝完成後，新增一個名稱為`openstack`的 User:
 ```sh
 $ sudo rabbitmqctl add_user openstack RABBIT_PASS
 Creating user "openstack" ...
@@ -217,15 +217,15 @@ $ sudo service memcached restart
 ```
 
 ## <font color=red> 提醒 </font>
-接下來會依序針對 OpenStack 的基礎套件進行安裝與設定教學，若發現有設定格式中有 ```...``` 代表上面有預設設定的其他參數，若沒提示```要註解掉```，請不要修改：
+接下來會依序針對 OpenStack 的基礎套件進行安裝與設定教學，若發現有設定格式中有 `...` 代表上面有預設設定的其他參數，若沒提示`要註解掉`，請不要修改：
 ```
 [DEFAULT]
 ...
 admin_token = 74e00617afa2008fcf25
 ```
-> P.S. 若在設定時，找不到對應的```[section]```部分，請自行新增。
+> P.S. 若在設定時，找不到對應的`[section]`部分，請自行新增。
 
-如果想要 log 能有顏色區隔提高閱讀方式，可以透過修改個套件的 conf 檔案透過以下方式：
+如果想要 log 能有顏色區隔提高閱讀方式，可以透過修改個套件的 conf 檔案設定，如以下內容：
 ```
 [DEFAULT]
 ...

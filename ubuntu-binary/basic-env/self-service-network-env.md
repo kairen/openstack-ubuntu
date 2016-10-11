@@ -14,9 +14,9 @@ Self-Service 的網路服務，可以讓部署多了 Layer 3（路由）服務�
 
 > `P.S.` 注意這邊作業系統採用 `Ubuntu 16.04 Server LTS `。
 
-> `P.S.` 以上節點的 Linux OS 請採用 ```64``` 位元的版本，因為若是在 Compute 節點安裝 ```32``` 位元，在執行映像檔時，會出錯。
+> `P.S.` 以上節點的 Linux OS 請採用 `64` 位元的版本，因為若是在 Compute 節點安裝 `32` 位元，在執行映像檔時，會出錯。
 
-> 且每個節點儲存空間必須大於規格，若需要安裝其他服務，並分離儲存磁區時，請採用 ```Logical Volume Manager (LVM)```。
+> 且每個節點儲存空間必須大於規格，若需要安裝其他服務，並分離儲存磁區時，請採用 `Logical Volume Manager (LVM)`。
 
 > 如果您選擇安裝在虛擬機上，請確認虛擬機是否允許混雜模式，並關閉 MAC 地址，在外部網絡上的過濾。
 
@@ -25,7 +25,7 @@ Self-Service 的網路服務，可以讓部署多了 Layer 3（路由）服務�
 ![](images/OpenStack-Network-Topology.png)
 
 ### 網路分配與說明
-這邊安裝採用 ```Self-service networks``` 網通服務來提供虛擬化網路給虛擬機使用，本架構最小安裝情況下會使用各一台的 Controller、Network 以及 Compute 節點（可依服務需求增加），在不同節點上需要提供對映的多張網卡（NIC）來設定給不同網路使用：
+這邊安裝採用 `Self-service networks` 網通服務來提供虛擬化網路給虛擬機使用，本架構最小安裝情況下會使用各一台的 Controller、Network 以及 Compute 節點（可依服務需求增加），在不同節點上需要提供對映的多張網卡（NIC）來設定給不同網路使用：
 * **Management（管理網路）**：10.0.0.0/24，需要一個 Gateway 並設定為 10.0.0.1。
 > 這邊需要提供一個 Gateway 來提供給所有節點使用內部的私有網路，該網路必須能夠連接網際網路來讓主機進行套件安裝與更新等。
 
@@ -47,7 +47,7 @@ $ dmesg | grep -i network
 $ ifconfig -a
 ```
 
-若要設定 ubuntu 網卡的話，可以編輯```/etc/network/interfaces```，並新增如以下內容：
+若要設定 ubuntu 網卡的話，可以編輯`/etc/network/interfaces`，並新增如以下內容：
 ```
 auto lo
 
@@ -58,40 +58,40 @@ iface eth0 inet static
         gateway 10.0.0.1
         dns-nameservers 8.8.8.8
 ```
-> 若要改網卡名稱，可以編輯```/etc/udev/rules.d/70-persistent-net.rules```。
+> 若要改網卡名稱，可以編輯`/etc/udev/rules.d/70-persistent-net.rules`。
 
 ### Controller Node 設定
-這邊將第一張網卡介面設定為 ```Management（管理網路）```：
+這邊將第一張網卡介面設定為 `Management（管理網路）`：
 * IP address：10.0.0.11
 * Network mask：255.255.255.0 (or /24)
 * Default gateway：10.0.0.1
 
 完成上述後，請重新開機改變設定。
 
-接著編輯```/etc/hostname```來改變主機名稱（Option）：
+接著編輯`/etc/hostname`來改變主機名稱（Option）：
 ```sh
 controller
 ```
 
-最後並設定主機 IP 與名稱的對照，編輯```/etc/hosts```檔案加入以下內容：
+最後並設定主機 IP 與名稱的對照，編輯`/etc/hosts`檔案加入以下內容：
 ```sh
 10.0.0.11   controller
 10.0.0.21   network
 10.0.0.31   compute1
 ```
-> P.S. 若有```127.0.1.1```存在的話，請將之註解掉，避免解析問題。
+> P.S. 若有`127.0.1.1`存在的話，請將之註解掉，避免解析問題。
 
 ### Network node 設定
-這邊將第一張網卡介面設定給```Management（管理網路）```使用：
+這邊將第一張網卡介面設定給`Management（管理網路）`使用：
 * IP address: 10.0.0.21
 * Network mask: 255.255.255.0 (or /24)
 * Default gateway: 10.0.0.1
 
-將第二張網卡介面設定給```Tunnel（隧道網路）```使用：
+將第二張網卡介面設定給`Tunnel（隧道網路）`使用：
 * IP address: 10.0.1.21
 * Network mask: 255.255.255.0 (or /24)
 
-將第三張網卡介面設定給```Public（公有網路）```使用。該網卡主要是提供虛擬機外部網路的流量出入口。這邊比較特殊，只需要設定手動啟動即可：
+將第三張網卡介面設定給`Public（公有網路）`使用。該網卡主要是提供虛擬機外部網路的流量出入口。這邊比較特殊，只需要設定手動啟動即可：
 ```sh
 auto <INTERFACE_NAME>
 iface <IINTERFACE_NAME> inet manual
@@ -101,28 +101,28 @@ iface <IINTERFACE_NAME> inet manual
 
 完成上述後，請重新開機來改變設定。
 
-接著編輯```/etc/hostname```來改變主機名稱（Option）：
+接著編輯`/etc/hostname`來改變主機名稱（Option）：
 ```sh
 network
 ```
 
-最後並設定主機 IP 與名稱的對照，編輯```/etc/hosts```檔案加入以下內容：
+最後並設定主機 IP 與名稱的對照，編輯`/etc/hosts`檔案加入以下內容：
 ```sh
 10.0.0.11   controller
 10.0.0.21   network
 10.0.0.31   compute1
 ```
-> P.S. 若有```127.0.1.1```存在的話，請將之註解掉，避免解析問題。
+> P.S. 若有`127.0.1.1`存在的話，請將之註解掉，避免解析問題。
 
 ### Compute Node 設定
-這邊將第一張網卡介面設定給```Management（管理網路）```使用：
+這邊將第一張網卡介面設定給`Management（管理網路）`使用：
 * IP address: 10.0.0.31
 * Network mask: 255.255.255.0 (or /24)
 * Default gateway: 10.0.0.1
 
 > 若有多個 Compute 節點，則 IP 也要跟著改變。
 
-將第二張網卡介面設定給```Tunnel（隧道網路）```使用：
+將第二張網卡介面設定給`Tunnel（隧道網路）`使用：
 * IP address: 10.0.1.31
 * Network mask: 255.255.255.0 (or /24)
 
@@ -130,22 +130,22 @@ network
 
 完成上述後，請重新開機來改變設定。
 
-接著編輯```/etc/hostname```來改變主機名稱（Option）：
+接著編輯`/etc/hostname`來改變主機名稱（Option）：
 ```sh
 compute1
 ```
 > 其他節點以此類推
 
-最後並設定主機 IP 與名稱的對照，編輯```/etc/hosts```檔案加入以下內容：
+最後並設定主機 IP 與名稱的對照，編輯`/etc/hosts`檔案加入以下內容：
 ```sh
 10.0.0.11   controller
 10.0.0.21   network
 10.0.0.31   compute1
 ```
-> P.S. 若有```127.0.1.1```存在的話，請將之註解掉，避免解析問題。
+> P.S. 若有`127.0.1.1`存在的話，請將之註解掉，避免解析問題。
 
 ## 主機設定驗證
-完成上述設定後，我們要透過網路工具來測試節點之間網路是否有正常連接，首先在```Controller```節點上驗證其他節點，如以下方式：
+完成上述設定後，我們要透過網路工具來測試節點之間網路是否有正常連接，首先在`Controller`節點上驗證其他節點，如以下方式：
 ```sh
 $ ping -c 2 compute
 PING compute (10.0.0.31) 56(84) bytes of data.
@@ -159,7 +159,7 @@ PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
 ```
 > 其他節點以此類推測試。
 
-上述沒問題後，到```Network```節點上驗證隧道網路與```Compute```節點有正常連接：
+上述沒問題後，到`Network`節點上驗證隧道網路與`Compute`節點有正常連接：
 ```sh
 $ ping -c 2 10.0.1.31
 PING 10.0.1.31 (10.0.1.31) 56(84) bytes of data.
@@ -167,4 +167,4 @@ PING 10.0.1.31 (10.0.1.31) 56(84) bytes of data.
 64 bytes from 10.0.1.31: icmp_seq=2 ttl=64 time=0.132 ms
 ```
 
-最後確認```Network```節點三張網卡是否都已開啟。
+最後確認`Network`節點三張網卡是否都已開啟。

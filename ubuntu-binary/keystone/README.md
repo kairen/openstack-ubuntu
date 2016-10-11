@@ -1,5 +1,5 @@
 # Keystone 安裝與設定
-本章節會說明與操作如何安裝身份認證服務到 Controller 節點上，並設置相關參數與設定。若對於 Keystone 不瞭解的人，可以參考 [Keystone 身份認證服務章節](../../../conceptions/keystone/README.md)。
+OpenStack 的  Keystone 提供了身份驗證服務，透過單點整合用於管理驗證、授權與服務目錄，來提升服務的使用安全。
 
 - [Keystone 安裝前準備](#安裝前準備)
 - [套件安裝與設定](#套件安裝與設定)
@@ -8,6 +8,8 @@
 - [建立 Keystone demo user](#建立-keystone-demo-user)
 - [驗證服務](#驗證服務)
 - [使用腳本切換使用者](#使用腳本切換使用者)
+
+> <font color=red> 提醒! </font>以下操作將一律在 Controller 進行。
 
 ### 安裝前準備
 在開始安裝前，要預先建立一個資料庫給 Keystone 儲存相關資訊，使用以下指令建立資料庫：
@@ -43,20 +45,20 @@ manual
 $ sudo apt-get install keystone apache2 libapache2-mod-wsgi
 ```
 
-安裝完後，編輯```/etc/keystone/keystone.conf```設定檔，在```[database]```部分修改使用以下方式：
+安裝完後，編輯`/etc/keystone/keystone.conf`設定檔，在`[database]`部分修改使用以下方式：
 ```
 [database]
 # connection = sqlite:////var/lib/keystone/keystone.db
 connection = mysql+pymysql://keystone:KEYSTONE_DBPASS@10.0.0.11/keystone
 ```
 
-在```[memcache]```部分加入以下內容：
+在`[memcache]`部分加入以下內容：
 ```
 [memcache]
 servers = 10.0.0.11:11211
 ```
 
-在```[token]```部分加入以下內容：
+在`[token]`部分加入以下內容：
 ```
 [token]
 provider = fernet
@@ -86,15 +88,15 @@ $ keystone-manage bootstrap --bootstrap-password passwd \
 --bootstrap-public-url http://10.0.0.11:5000/v3/ \
 --bootstrap-region-id RegionOne
 ```
-> 這邊```ADMIN_PASS```可以隨需求修改。
+> 這邊`ADMIN_PASS`可以隨需求修改。
 
 ### 設定 Apache HTTP 伺服器
-由於本教學採用 WSGI Mod 來提供 Keystone 服務，因此我們將使用到 Apache2 來建立 HTTP 服務，首先編```/etc/apache2/apache2.conf``` 加入以下內容：
+由於本教學採用 WSGI Mod 來提供 Keystone 服務，因此我們將使用到 Apache2 來建立 HTTP 服務，首先編`/etc/apache2/apache2.conf` 加入以下內容：
 ```
 ServerName 10.0.0.11
 ```
 
-接著建立一個設定檔```/etc/apache2/sites-available/keystone.conf```來提供 Keystone 服務，並加入以下內容（預設安裝即存在）：
+接著建立一個設定檔`/etc/apache2/sites-available/keystone.conf`來提供 Keystone 服務，並加入以下內容（預設安裝即存在）：
 ```
 Listen 5000
 Listen 35357
@@ -258,7 +260,7 @@ $ openstack --os-auth-url http://10.0.0.11:35357/v3 \
 --os-username admin \
 token issue
 ```
-> 其中 ```default``` 是當沒有指定 Domain 時的預設名稱。
+> 其中 `default` 是當沒有指定 Domain 時的預設名稱。
 
 成功的話，會看到類似以下結果：
 ```
@@ -295,7 +297,7 @@ project list
 +----------------------------------+---------+
 ```
 
-然後再透 ```demo``` 使用者來驗證是否有存取權限，這邊利用 v3 來取得 Token：
+然後再透 `demo` 使用者來驗證是否有存取權限，這邊利用 v3 來取得 Token：
 ```sh
 $ openstack --os-auth-url http://10.0.0.11:5000/v3 \
 --os-project-domain-name default \
@@ -304,7 +306,7 @@ $ openstack --os-auth-url http://10.0.0.11:5000/v3 \
 --os-username demo \
 token issue
 ```
-> 本教學範例密碼為```demo```。
+> 本教學範例密碼為`demo`。
 
 成功的話，會看到類似以下結果：
 ```
@@ -322,7 +324,7 @@ token issue
 
 > P.S 這邊會發現使用的 Port 從 35357 轉換成 5000，這邊只是為了區別 Admin URL 與 Public URL 中使用的 Port。
 
-最後再透過 ```demo``` 來使用擁有管理者權限的 API：
+最後再透過 `demo` 來使用擁有管理者權限的 API：
 ```sh
 $ openstack --os-auth-url http://10.0.0.11:5000/v3 \
 --os-project-domain-name default \
@@ -345,7 +347,7 @@ You are not authorized to perform the requested action: identity:list_users (HTT
 $ touch admin-openrc demo-openrc
 ```
 
-編輯 ```admin-openrc``` 加入以下內容：
+編輯 `admin-openrc` 加入以下內容：
 ```sh
 export OS_PROJECT_DOMAIN_NAME=default
 export OS_USER_DOMAIN_NAME=default
@@ -357,7 +359,7 @@ export OS_IDENTITY_API_VERSION=3
 export OS_IMAGE_API_VERSION=2
 ```
 
-編輯 ```demo-openrc``` 加入以下內容：
+編輯 `demo-openrc` 加入以下內容：
 ```sh
 export OS_PROJECT_DOMAIN_NAME=default
 export OS_USER_DOMAIN_NAME=default

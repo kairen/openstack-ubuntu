@@ -24,15 +24,15 @@ $ sudo rabbitmq-plugins enable rabbitmq_management
 $ sudo sh -c "echo '[{rabbit, [{loopback_users, []}]}].' > /etc/rabbitmq/rabbitmq.config"
 $ sudo service rabbitmq-server restart
 ```
-完成後進入```http://<ip>:15672 ```，輸入```guest/guest```。
+完成後進入`http://<ip>:15672 `，輸入`guest/guest`。
 
 
-同步 ERLang Cookie，在同步 ERLang Cookie 之前，必須先將```slave nodes```的 RabiitMQ 服務停止：
+同步 ERLang Cookie，在同步 ERLang Cookie 之前，必須先將`slave nodes`的 RabiitMQ 服務停止：
 ```sh
 $ sudo service rabbitmq-server stop
 ```
 
-備份```slave nods```上的 ERLang Cookie：
+備份`slave nods`上的 ERLang Cookie：
 ```sh
 $ sudo cp /var/lib/rabbitmq/.erlang.cookie /var/lib/rabbitmq/.erlang.cookie.bak
 ```
@@ -40,7 +40,7 @@ $ sudo cp /var/lib/rabbitmq/.erlang.cookie /var/lib/rabbitmq/.erlang.cookie.bak
 ```sh
 $ sudo cat /var/lib/rabbitmq/.erlang.cookie | ssh controller2 sudo tee /var/lib/rabbitmq/.erlang.cookie
 ```
-重新啟動```slave nodes```上的 rabbitmq-server 服務
+重新啟動`slave nodes`上的 rabbitmq-server 服務
 ```sh
 $ sudo service rabbitmq-server start
 ```
