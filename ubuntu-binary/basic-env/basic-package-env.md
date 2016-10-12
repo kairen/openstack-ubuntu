@@ -1,8 +1,22 @@
-# Network Time Protocol (NTP)
-由於要讓各節點的時間能夠同步，我們需要安裝```ntp```套件來提供服務，這邊推薦將 NTP Server 安裝於 Controller 上，再讓其他節點進行關聯即可。
+# 基本套件環境安裝
+本節將說明部署 OpenStack 前的初步軟體安裝與步驟，其包含安裝 Database、Message Queue、NTP 等，如以下目錄所示：
+
+- [Network Time Protocol](#network-time-protocol)
+    - [Controller 節點設定](#controller-節點設定)
+    - [其他節點設定](#其他節點設定)
+    - [驗證設定](#驗證設定)
+- [安裝 OpenStack 套件](#安裝-openStack-套件)
+- [OpenStack Client 安裝](#openstack-client-安裝)
+- [SQL Database 安裝](#sql-database-安裝)
+- [Message queue 安裝](#message-queue-安裝)
+- [Memcached](#memcached)
+- [提醒](#提醒)
+
+## Network Time Protocol
+由於要讓各節點的時間能夠同步，我們需要安裝`ntp`套件來提供服務，這邊推薦將 NTP Server 安裝於 Controller 上，再讓其他節點進行關聯即可。
 
 ### Controller 節點設定
-在 Controller 節點上，我們可以透過```apt-get```來安裝相關套件：
+在 Controller 節點上，我們可以透過`apt-get`來安裝相關套件：
 ```sh
 $ sudo apt-get install -y ntp
 ```
@@ -10,9 +24,9 @@ $ sudo apt-get install -y ntp
 ```sh
 $ sudo apt-get install chrony
 ```
-> 若要修改設定檔則編輯```/etc/chrony/chrony.conf```。基本設定上與 ntp 雷同。
+> 若要修改設定檔則編輯`/etc/chrony/chrony.conf`。基本設定上與 ntp 雷同。
 
-完成安裝後，預設 NTP 會透過公有的伺服器來同步時間，但也可以修改```/etc/ntp.conf```來選擇伺服器：
+完成安裝後，預設 NTP 會透過公有的伺服器來同步時間，但也可以修改`/etc/ntp.conf`來選擇伺服器：
 ```sh
 restrict 10.0.0.0 mask 255.255.255.0 nomodify notrap
 
@@ -20,18 +34,19 @@ server 2.tw.pool.ntp.org
 server 3.asia.pool.ntp.org
 server 0.asia.pool.ntp.org
 ```
-將 ```NTP_SERVER``` 替換為主機名稱或更準確的（lower stratum） NTP 伺服器 IP 地址。這個設定支援多個 server 關鍵字。
-> 如果系統有```/var/lib/ntp/ntp.conf.dhcp```存在，請將它刪除。
 
+將`NTP_SERVER`替換為主機名稱或更準確的（lower stratum） NTP 伺服器 IP 地址。這個設定支援多個 server 關鍵字。
 > 如果需要切換系統時區至台灣可以使用以下指令：
 ```sh
 $ sudo timedatectl set-timezone Asia/Taipei
 ```
 
-
-完成後，重啟服務：
+完成後重新啟動服務：
 ```sh
 $ sudo service ntp restart
+```
+> ```sh
+$ sudo service chrony restart
 ```
 
 ### 其他節點設定
@@ -40,20 +55,22 @@ $ sudo service ntp restart
 $ sudo apt-get install -y ntp
 ```
 
-完成安裝後，編輯```/etc/ntp.conf```檔案，註解掉所有```server```的參數，並將其設定為 Controller IP：
+完成安裝後，編輯`/etc/ntp.conf`檔案，註解掉所有`server`的參數，並將其設定為 Controller IP：
 ```sh
 server 10.0.0.11 iburst
 ```
-> 如果系統有```/var/lib/ntp/ntp.conf.dhcp```存在，請將它刪除。
 
 > 如果需要切換系統時區至台灣可以使用以下指令：
 ```sh
 $ sudo timedatectl set-timezone Asia/Taipei
 ```
 
-完成後，重啟服務：
+完成後重新啟動服務：
 ```sh
 $ sudo service ntp restart
+```
+> ```sh
+$ sudo service chrony restart
 ```
 
 ### 驗證設定
@@ -93,44 +110,53 @@ ind assid status  conf reach auth condition  last_event cnt
   1 21181  963a   yes   yes  none  sys.peer    sys_peer  3
 ```
 
-# 安裝OpenStack套件
-接下來我們需在每個節點安裝 Openstack 相關套件，但由於 Ubuntu 的版本差異，會影響 OpenStack 支援的版本，在安裝時要特別注意是否支援，才會有對應的 Repository 可以使用，支援狀況如下圖：
+## 安裝 OpenStack 套件
+接下來我們需在`每台節點`安裝 Openstack 相關套件，但由於 Ubuntu 的版本差異，會影響 [OpenStack 支援的版本](https://wiki.ubuntu.com/OpenStack/CloudArchive)，在安裝時要特別注意是否支援，才會有對應的 Repository 可以使用，支援狀況如下圖：
 ![Ubuntu](images/openstack_support.png)
 
-若是 Ubuntu ```15.04 ``` 以下的版本，需加入 Repository 來獲取套件：
+在安裝開始前，需要先加入 Repository 來獲取套件來源：
 ```sh
 $ sudo apt-get install -y software-properties-common
-$ sudo add-apt-repository -y cloud-archive:mitaka
+$ sudo add-apt-repository -y cloud-archive:newton
 ```
-> 若要安裝 ``` pre-release``` 測試版本，修改為```cloud-archive:mitaka-proposed```。
+> 若要安裝 `pre-release`測試版本，修改為`cloud-archive:${ver_name}-proposed`。
 
-> 若要安裝 ```liberty```，修改為```cloud-archive:liberty```。
+> 若要安裝 `liberty` 或 `mitaka`，修改為 `cloud-archive:${ver_name}`。可以參考 [VersionTracking](https://wiki.ubuntu.com/OpenStack/VersionTracking)
 
 更新 Repository 與系統核心套件：
 ```sh
 $ sudo apt-get update && sudo apt-get -y dist-upgrade
 ```
-> 如果 Upgrade 包含了新的核心套件的話，請重新開機。
+> 如果 Upgrade 包含了新的核心套件的話請重新開機。
 
-# SQL database 安裝
-大部份的 OpenStack 套件服務都是使用 SQL 資料庫來儲存訊息，該資料庫一般運作於```Controller```上。以下我們使用了 MariaDB 或 MySQL 來當作各套件的資訊儲存。OpenStack 也支援了其他資料庫，諸如：PostgreSQL。這邊透過```apt-get```來安裝 MariaDB 套件：
+## OpenStack Client 安裝
+若該節點為主要操作 OpenStack 的節點，請安裝以下工具來提供叢集操作
+```sh
+$ sudo apt-get install -y python-openstackclient
+```
+> OpenStack Client 從 Liberty 版本開始整合了各種服務的 API。
+
+## SQL database 安裝
+大部份的 OpenStack 套件服務都是使用 SQL 資料庫來儲存訊息，該資料庫一般運作於`Controller`上。以下我們使用了 MariaDB 或 MySQL 來當作各套件的資訊儲存。OpenStack 也支援了其他資料庫，諸如：PostgreSQL。這邊透過`apt-get`來安裝 MariaDB 套件：
 ```sh
 $ sudo apt-get install -y mariadb-server python-pymysql
 ```
 > 記住 Python MySQL 和 MariaDB 是相容的。
 
-安裝過程中需要設定```root```帳號的密碼，這邊設定為```passwd```，。
+安裝過程中需要設定`root`帳號的密碼，這邊設定為`passwd`，。
 
-完成安裝後，需要建立並編輯```/etc/mysql/conf.d/mysqld_openstack.cnf```來設定資料庫。在```[mysqld]```部分加入以下修改：
-```sh
+完成安裝後，需要建立並編輯`/etc/mysql/mariadb.conf.d/openstack.cnf`來設定資料庫。在`[mysqld]`部分加入以下修改：
+```
 [mysqld]
 bind-address = 10.0.0.11
+
 default-storage-engine = innodb
 innodb_file_per_table
+max_connections = 4096
 collation-server = utf8_general_ci
 character-set-server = utf8
 ```
-> 這邊的檔案 ```mysqld_openstack.cnf``` 是可以修改名稱的。
+> 這邊的檔案`openstack.cnf`是可以修改名稱的。
 
 完成後，重新啟動 MySQL 服務：
 ```sh
@@ -150,15 +176,15 @@ $ mysqldump --user=root -p --all-databases > mysql.sql
 $ mysql -u root -p < mysql.sql
 ```
 
-除了更換密碼外，其餘每個項目都輸入```yes```，並設置對應資訊。
+除了更換密碼外，其餘每個項目都輸入`yes`，並設置對應資訊。
 
-# Message queue 安裝
-OpenStack 使用 Message Queue 來對整個叢集提供協調與狀態訊息收集。Openstack 支援的 Message Queue 包含以下[RabbitMQ](http://www.rabbitmq.com/)、[Qpid](http://qpid.apache.org/)、[ZeroMQ](http://zeromq.org/)。但是大多數的釋出版本支援特殊的 Message Queue 服務，這邊我們使用了```RabbitMQ```來實現，並安裝於```Controller```節點上，透過```apt-get```安裝套件：
+## Message queue 安裝
+OpenStack 使用 Message Queue 來對整個叢集提供協調與狀態訊息收集。Openstack 支援的 Message Queue 包含以下[RabbitMQ](http://www.rabbitmq.com/)、[Qpid](http://qpid.apache.org/)、[ZeroMQ](http://zeromq.org/)。但是大多數的釋出版本支援特殊的 Message Queue 服務，這邊我們使用了`RabbitMQ`來實現，並安裝於`Controller`節點上，透過`apt-get`安裝套件：
 ```sh
 $ sudo apt-get install -y rabbitmq-server
 ```
 
-安裝完成後，新增一個名稱為 ```openstack``` 的 User:
+安裝完成後，新增一個名稱為`openstack`的 User:
 ```sh
 $ sudo rabbitmqctl add_user openstack RABBIT_PASS
 Creating user "openstack" ...
@@ -173,16 +199,33 @@ Setting permissions for user "openstack" in vhost "/" ...
 ...done.
 ```
 
-# <font color=red> 提醒 </font>
-接下來會依序針對 OpenStack 的基礎套件進行安裝與設定教學，若發現有設定格式中有 ```...``` 代表上面有預設設定的其他參數，若沒提示```要註解掉```，請不要修改：
+## Memcached
+由於 Keystone 的身份認證服務機制使用了 Memcached 作為快取 Tokens，一般 memcached 服務安裝於 `Controller` 節點。而對於生產環境建議啟動防火牆、認證與加密來保護它。安裝方式如下：
+```sh
+$ sudo apt-get install -y memcached python-memcache
+```
+
+接著編輯 `/etc/memcached.conf` 設定檔，
+並設定服務使用 `controller` 節點的 Management IP 來提供其他節點存取：
+```
+-l 10.0.0.11
+```
+
+完成後重新啟動服務：
+```sh
+$ sudo service memcached restart
+```
+
+## <font color=red> 提醒 </font>
+接下來會依序針對 OpenStack 的基礎套件進行安裝與設定教學，若發現有設定格式中有 `...` 代表上面有預設設定的其他參數，若沒提示`要註解掉`，請不要修改：
 ```
 [DEFAULT]
 ...
 admin_token = 74e00617afa2008fcf25
 ```
-> P.S. 若在設定時，找不到對應的```[section]```部分，請自行新增。
+> P.S. 若在設定時，找不到對應的`[section]`部分，請自行新增。
 
-如果想要 log 能有顏色區隔提高閱讀方式，可以透過修改個套件的 conf 檔案透過以下方式：
+如果想要 log 能有顏色區隔提高閱讀方式，可以透過修改個套件的 conf 檔案設定，如以下內容：
 ```
 [DEFAULT]
 ...

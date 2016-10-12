@@ -1,5 +1,5 @@
 # 基本環境
-在選擇部署一個 OpenStack 之前，要先評估網路服務是基於何種方式進行部署，因為這將影響最終交付的結果。為了便於選擇，這邊簡單介紹 OpenStack 最基本的幾個網路部署模式。
+OpenStack 提供一個基礎設施即服務雲端架構，是透過各種配套服務的解決方案，其每個服務提供一個應用程式介面來利於整合。在選擇部署一個 OpenStack 之前，要先評估網路服務是基於何種方式進行部署，因為這將影響最終交付的結果。為了便於選擇，這邊簡單介紹 OpenStack 最基本的幾個網路部署模式。
 
 Nova network 是 OpenStack 最早支援了網路部署模式，又稱 Legacy networking。可以支援單一平面的網路部署，目前支援三種網路管理：
 * **Flat Network**
@@ -11,9 +11,11 @@ Nova network 是 OpenStack 最早支援了網路部署模式，又稱 Legacy net
 而在 Neutron 網路部署中，會進一步分成以下兩種服務模式：
 * **Provider networks** 的網路服務，最簡單部署是連接 Layer 2（交換器/橋接）以及網路 VLAN 切割。本質上是橋接虛擬網路的物理網路與依賴於實體網路設備（路由器）服務。
 
+> `P.S.` 該選項相較於 self-service 網路缺少了 Layer-3(Routing)與進階的服務，諸如 LBaas 與 FWaaS。如果你的雲端環境需要這些功能，建議使用 self-service。
+
 ![](images/scenario-provider-networks.png)
 
-* **Self-service networks** 的網路服務，可以讓部署多了 Layer 3（路由）服務的選擇，使用覆蓋網路分割租戶網路（Tanent Network），如 VXLAN、GRE。本質上它路由是使用 NAT 來讓虛擬網路對應到實體網路。此外夠能夠根據需求建置 Layer 7 的網路服務，如 LBaaS 與 FWaaS。
+* **Self-service networks** 的網路服務，可以讓部署多了 Layer 3（路由）服務的選擇，使用覆蓋網路分割租戶網路（Tanent Network），如 VXLAN、GRE等 Overlay 網路。本質上它路由是使用 NAT 來讓虛擬網路對應到實體網路。此外夠能夠根據需求建置 Layer 7 的網路服務，如 LBaaS 與 FWaaS。
 
 ![](images/scenario-classic-networks.png)
 

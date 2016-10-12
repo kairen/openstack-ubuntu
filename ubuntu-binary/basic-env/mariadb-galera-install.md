@@ -1,5 +1,5 @@
 # OpenStack MySQL High Availability
-OpenStack High Availability 有兩種常見部署模式，一個為 ```Active/Active``` 與 ```Active/Passive```，前者為每個節點主動提供服務，後者則是主只有節點提供服務，另外節點當作備援使用。MySQL 的 HA 可以用以下兩種方式達成。
+OpenStack High Availability 有兩種常見部署模式，一個為 `Active/Active` 與 `Active/Passive`，前者為每個節點主動提供服務，後者則是主只有節點提供服務，另外節點當作備援使用。MySQL 的 HA 可以用以下兩種方式達成。
 
 ## MariaDB Galera 叢集
 ### 叢集環境說明
@@ -27,7 +27,7 @@ GRANT ALL PRIVILEGES on *.* to openstack@'localhost';
 ```
 
 ## 設定 cluster
-以下動作要在 cluster 中的每一個 node 上面執行，新增設定檔```/etc/mysql/conf.d/cluster.cnf```，並設定內容如下：
+以下動作要在 cluster 中的每一個 node 上面執行，新增設定檔`/etc/mysql/conf.d/cluster.cnf`，並設定內容如下：
 ```sh
 [mysqld]
 binlog_format = ROW
@@ -45,7 +45,7 @@ wsrep_cluster_address = "gcomm://10.0.0.11:4567,10.0.0.12:4567,10.0.0.13:4567"
 wsrep_sst_auth = openstack:p@ssw0rd
 wsrep_sst_method = rsync
 ```
-> ```wsrep_node_address```跟```wsrep_node_name``` 需要隨節點更改。
+> `wsrep_node_address`跟`wsrep_node_name`需要隨節點更改。
 
 為了確保 debian-sys-maint 的密碼是相同的，我們必須將第一個 node 的 /etc/mysql/debian.cnf 複製到其他 node：
 ```sh
@@ -72,7 +72,6 @@ $ sudo service mysql start
 ```sql
 show status like 'wsrep%';
 ```
-
 
 ## 參考文獻
 * http://godleon.github.io/blog/2015/05/27/Build-MariaDB-Galera-Cluster-in-Ubuntu/
