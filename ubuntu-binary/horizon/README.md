@@ -1,5 +1,5 @@
 # Horizon 安裝與設定
-本章節會說明與操作如何安裝 Web 儀表板到 Controller 節點上，並設定安裝相關參數與套件。若對於 Horizon 不瞭解的人，可以參考 [Horizon 儀表板服務章節](../../../conceptions/horizon/README.md)。
+OpenStack 的 Horizon 提供了一套 Web-based 介面的管理儀表板，其提供雲端管理人員夠透過該儀表板進行管理 OpenStack 中各種服務與資源。
 
 - [系統基本需求](#系統基本需求)
 - [套件安裝與設定](#套件安裝與設定)
@@ -58,7 +58,7 @@ sudo service apache2 restart
 
 ### 驗證服務
 這個部分將描述如何進行儀表板的驗證操作，依照以下兩個簡單步驟：
-* 開啟 Web 瀏覽器進入儀表板: http://controller/horizon。
+* 開啟 Web 瀏覽器進入儀表板: http://10.0.0.11/horizon。
 * 使用 admin 或 demo 的使用者登入。
 
 ![horizon](images/horizon.png)
