@@ -82,7 +82,7 @@ $ sudo keystone-manage credential_setup --keystone-user keystone --keystone-grou
 
 最後引導身份認證服務：
 ```sh
-$ keystone-manage bootstrap --bootstrap-password passwd \
+$ sudo keystone-manage bootstrap --bootstrap-password passwd \
 --bootstrap-admin-url http://10.0.0.11:35357/v3/ \
 --bootstrap-internal-url http://10.0.0.11:35357/v3/ \
 --bootstrap-public-url http://10.0.0.11:5000/v3/ \
