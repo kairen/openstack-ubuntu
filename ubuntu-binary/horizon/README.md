@@ -18,9 +18,12 @@
 ```sh
 $ sudo apt-get install openstack-dashboard
 ```
-> Ubuntu 安裝 openstack-dashboard 時，會自動安裝`ubuntu-theme` 樣板套件，若發生問題或者不需要，可以直接刪除該套件。
-```sh
-$ sudo apt-get remove --purge openstack-dashboard-ubuntu-theme
+> Ubuntu 安裝 openstack-dashboard 時，會自動安裝`ubuntu-theme` 樣板套件，若想使用 OpenStack 預設樣板，可以編輯 ` /etc/openstack-dashboard/local_settings.py` 設定檔，移除以下的註解
+```
+AVAILABLE_THEMES = [                             
+    ('default', 'Default', 'themes/default'),    
+    ('material', 'Material', 'themes/material'),
+]                                                
 ```
 
 完成安裝後，編輯`/etc/openstack-dashboard/local_settings.py`設定檔，部分加入以下內容：
