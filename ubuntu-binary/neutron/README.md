@@ -500,23 +500,20 @@ $ . admin-openrc
 
 這邊可以透過 Neutron client 來查看 Agents 狀態，如以下方式：
 ```sh
-$ neutron agent-list
-+----------------+----------------+----------+-------------------+-------+----------------+------------------+
-| id             | agent_type     | host     | availability_zone | alive | admin_state_up | binary           |
-+----------------+----------------+----------+-------------------+-------+----------------+------------------+
-| 57810982-9332- | L3 agent       | network1 | nova              | :-)   | True           | neutron-l3-agent |
-| 42a8-9d6b-     |                |          |                   |       |                |                  |
-| 84b3623efbec   |                |          |                   |       |                |                  |
-| a61723a9-cb84  | Open vSwitch   | network1 |                   | :-)   | True           | neutron-         |
-| -4eeb-86b0-6dc | agent          |          |                   |       |                | openvswitch-     |
-| 441d8e513      |                |          |                   |       |                | agent            |
-| b4e99ea9-7d5c- | Metadata agent | network1 |                   | :-)   | True           | neutron-         |
-| 4930-bcd3-1249 |                |          |                   |       |                | metadata-agent   |
-| 8146c65a       |                |          |                   |       |                |                  |
-| c46e2ef9-f960- | DHCP agent     | network1 | nova              | :-)   | True           | neutron-dhcp-    |
-| 4a52-a90e-     |                |          |                   |       |                | agent            |
-| 36dc4d19e9f9   |                |          |                   |       |                |                  |
-+----------------+----------------+----------+-------------------+-------+----------------+------------------+
+$ openstack network agent list
++--------------------+--------------------+----------+-------------------+-------+-------+-----------------------+
+| ID                 | Agent Type         | Host     | Availability Zone | Alive | State | Binary                |
++--------------------+--------------------+----------+-------------------+-------+-------+-----------------------+
+| 57810982-9332-42a8 | L3 agent           | network1 | nova              | True  | UP    | neutron-l3-agent      |
+| -9d6b-84b3623efbec |                    |          |                   |       |       |                       |
+| a61723a9-cb84      | Open vSwitch agent | network1 | None              | True  | UP    | neutron-openvswitch-  |
+| -4eeb-             |                    |          |                   |       |       | agent                 |
+| 86b0-6dc441d8e513  |                    |          |                   |       |       |                       |
+| b4e99ea9-7d5c-4930 | Metadata agent     | network1 | None              | True  | UP    | neutron-metadata-     |
+| -bcd3-12498146c65a |                    |          |                   |       |       | agent                 |
+| c46e2ef9-f960-4a52 | DHCP agent         | network1 | nova              | True  | UP    | neutron-dhcp-agent    |
+| -a90e-36dc4d19e9f9 |                    |          |                   |       |       |                       |
++--------------------+--------------------+----------+-------------------+-------+-------+-----------------------+
 ```
 
 # Compute Node
@@ -675,7 +672,7 @@ $ . admin-openrc
 
 這邊可以透過 Neutron client 來查看 Agents 狀態，如以下方式：
 ```sh
-$ neutron agent-list
+$ openstack network agent list
 ```
 > 若正確的話，會看到多一個`compute`節點執行的 agent
 

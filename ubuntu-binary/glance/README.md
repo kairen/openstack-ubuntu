@@ -58,7 +58,7 @@ $ sudo apt-get install -y glance
 ```
 
 安裝完成後，編輯 `/etc/glance/glance-api.conf` 設定檔，在`[database]`部分修改使用以下方式：
-```sh
+```
 [database]
 # sqlite_db = /var/lib/glance/glance.sqlite
 connection = mysql+pymysql://glance:GLANCE_DBPASS@10.0.0.11/glance
@@ -66,7 +66,7 @@ connection = mysql+pymysql://glance:GLANCE_DBPASS@10.0.0.11/glance
 > 這邊`GLANCE_DBPASS`可以隨需求修改。
 
 接下來，在`[keystone_authtoken]`部分加入以下內容：
-```sh
+```
 [keystone_authtoken]
 auth_uri = http://10.0.0.11:5000
 auth_url = http://10.0.0.11:35357
@@ -81,13 +81,13 @@ password = GLANCE_PASS
 > 這邊`GLANCE_PASS`可以隨需求修改。
 
 在`[paste_deploy]`部分加入以下內容：
-```sh
+```
 [paste_deploy]
 flavor = keystone
 ```
 
 在`[glance_store]`部分加入以下內容：
-```sh
+```
 [glance_store]
 stores = file,http
 default_store = file
@@ -96,7 +96,7 @@ filesystem_store_datadir = /var/lib/glance/images/
 > 其中`filesystem_store_datadir`是當映像檔上傳時檔案放置的目錄。
 
 完成後，要接著編輯`/etc/glance/glance-registry.conf`並完成以下設定，在`[database]`部分修改使用以下方式：
-```sh
+```
 [database]
 # sqlite_db = /var/lib/glance/glance.sqlite
 connection = mysql+pymysql://glance:GLANCE_DBPASS@10.0.0.11/glance
@@ -104,7 +104,7 @@ connection = mysql+pymysql://glance:GLANCE_DBPASS@10.0.0.11/glance
 > 這邊`GLANCE_DBPASS`可以隨需求修改。
 
 接下來，在`[keystone_authtoken]`部分加入以下內容：
-```sh
+```
 [keystone_authtoken]
 auth_uri = http://10.0.0.11:5000
 auth_url = http://10.0.0.11:35357
@@ -119,7 +119,7 @@ password = GLANCE_PASS
 > 這邊`GLANCE_PASS`可以隨需求修改。
 
 在`[paste_deploy]`部分加入以下內容：
-```sh
+```
 [paste_deploy]
 flavor = keystone
 ```

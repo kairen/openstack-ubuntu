@@ -65,7 +65,7 @@ nova-novncproxy nova-scheduler
 ```
 
 安裝完成後，編輯`/etc/nova/nova.conf`設定檔，在`[DEFAULT]`部分加入以下內容：
-```sh
+```
 [DEFAULT]
 ...
 enabled_apis = osapi_compute,metadata
@@ -80,28 +80,28 @@ my_ip = MANAGEMENT_IP
 > P.S. `MANAGEMENT_IP`這邊為`10.0.0.11`。
 
 在`[vnc]`部分加入以下內容：
-```sh
+```
 [vnc]
 vncserver_listen = 10.0.0.11
 vncserver_proxyclient_address = 10.0.0.11
 ```
 
 在`[database]`部分修改使用以下方式：
-```sh
+```
 [database]
 connection = mysql+pymysql://nova:NOVA_DBPASS@10.0.0.11/nova
 ```
 > 這邊`NOVA_DBPASS`可以隨需求修改。
 
 在`[api_database]`部分修改使用以下方式：
-```sh
+```
 [api_database]
 connection = mysql+pymysql://nova:NOVA_DBPASS@10.0.0.11/nova_api
 ```
 > 這邊`NOVA_DBPASS`可以隨需求修改。
 
 在`[oslo_messaging_rabbit]`部分加入以下內容：
-```sh
+```
 [oslo_messaging_rabbit]
 rabbit_host = 10.0.0.11
 rabbit_userid = openstack
@@ -110,7 +110,7 @@ rabbit_password = RABBIT_PASS
 > 這邊`RABBIT_PASS`可以隨需求修改。
 
 在`[keystone_authtoken]`部分加入以下內容：
-```sh
+```
 [keystone_authtoken]
 auth_uri = http://10.0.0.11:5000
 auth_url = http://10.0.0.11:35357
@@ -125,13 +125,13 @@ password = NOVA_PASS
 > 這邊`NOVA_PASS`可以隨需求修改。
 
 在`[glance]`部分加入以下內容：
-```sh
+```
 [glance]
 api_servers = http://10.0.0.11:9292
 ```
 
 在`[oslo_concurrency]`部分加入以下內容：
-```sh
+```
 [oslo_concurrency]
 lock_path = /var/lib/nova/tmp
 ```
@@ -166,7 +166,7 @@ $ sudo apt-get install -y nova-compute
 ```
 
 安裝完成後，編輯`/etc/nova/nova.conf`設定檔，在`[DEFAULT]`部分加入以下內容：
-```sh
+```
 [DEFAULT]
 ...
 enabled_apis = osapi_compute,metadata
@@ -182,7 +182,7 @@ my_ip = MANAGEMENT_IP
 > P.S.`MANAGEMENT_IP`這邊為`10.0.0.31`。
 
 在`[vnc]`部分加入以下內容：
-```sh
+```
 [vnc]
 enabled = True
 vncserver_listen = 0.0.0.0
@@ -193,7 +193,7 @@ novncproxy_base_url = http://10.0.0.11:6080/vnc_auto.html
 > 這邊`novncproxy_base_url`的 port 要隨著 proxy 節點設定改變。
 
 在`[oslo_messaging_rabbit]`部分加入以下內容：
-```sh
+```
 [oslo_messaging_rabbit]
 rabbit_host = 10.0.0.11
 rabbit_userid = openstack
@@ -202,7 +202,7 @@ rabbit_password = RABBIT_PASS
 > 這邊`RABBIT_PASS`可以隨需求修改。
 
 在`[keystone_authtoken]`設部分加入以下內容：
-```sh
+```
 [keystone_authtoken]
 auth_uri = http://10.0.0.11:5000
 auth_url = http://10.0.0.11:35357
@@ -217,13 +217,13 @@ password = NOVA_PASS
 > 這邊`NOVA_PASS`可以隨需求修改。
 
 在`[glance]`部分加入以下內容：
-```sh
+```
 [glance]
 api_servers = http://10.0.0.11:9292
 ```
 
 在`[oslo_concurrency]`，部分加入以下內容：
-```sh
+```
 [oslo_concurrency]
 lock_path = /var/lib/nova/tmp
 ```
@@ -240,7 +240,7 @@ KVM acceleration can be used
 ```
 
 若取得的值 `> 1` 的話，表示該節點可能支援硬體加速，故使用預設的 KVM 技術。若是 `0` 的話，則需設定 nova-compute 使用其他虛擬化技術。要設定可以透過編輯`/etc/nova/nova-compute.conf`來修改`[libvirt]`部分：
-```sh
+```
 [libvirt]
 virt_type = qemu
 ```

@@ -13,7 +13,7 @@ git clone https://github.com/openstack/trove-dashboard.git
 ```sh
 $ sudo pip install -e trove-dashboard/
 ```
-> 也可以用 ```python setup.py install``` 安裝，差異在於一個是參考，一個是直接安裝到 /usr/bin。
+> 也可以用`python setup.py install`安裝，差異在於一個是參考，一個是直接安裝到 /usr/bin。
 
 將 Trove dashboard 相關程式檔案複製到 Horizon:
 ```sh

@@ -1,5 +1,5 @@
 # Heat 安裝與設定
-本章節會說明與操作如何安裝協作服務到 Controller 節點上，並設置相關參數與設定。若對於 Heat 不瞭解的人，可以參考[Heat 協作整合服務章節](../../../conceptions/heat/README.md)。
+OpenStack Heat 提供 Orchestration 服務，可以基於模板(Template)來編配產生可執行雲端應用程式，讓管理員可以用一個板模檔案來描述部署業務流程。
 
 - [安裝前準備](#安裝前準備)
 - [套件安裝與設定](#套件安裝與設定)
@@ -17,9 +17,9 @@ CREATE DATABASE heat;
 GRANT ALL PRIVILEGES ON heat.* TO 'heat'@'localhost' IDENTIFIED BY 'HEAT_DBPASS';
 GRANT ALL PRIVILEGES ON heat.* TO 'heat'@'%'  IDENTIFIED BY 'HEAT_DBPASS';
 ```
-> 這邊```HEAT_DBPASS```可以隨需求修改。
+> 這邊`HEAT_DBPASS`可以隨需求修改。
 
-完成後離開資料庫，接著要建立 Service 與 API Endpoint，首先導入 ```admin``` 環境變數：
+完成後離開資料庫，接著要建立 Service 與 API Endpoint，首先導入`admin`環境變數：
 ```sh
 $ . admin-openrc
 ```
@@ -82,16 +82,16 @@ $ openstack role add --project demo --user demo heat_stack_owner
 # 建立 Heat stack user role
 $ openstack role create heat_stack_user
 ```
-> 這邊```HEAT_PASS```與```HEAT_DOMAIN_PASS```可以隨需求修改。
+> 這邊`HEAT_PASS`與`HEAT_DOMAIN_PASS`可以隨需求修改。
 
 ### 套件安裝與設定
 在開始設定之前，首先要安裝相關套件與 OpenStack 服務套件，可以透過以下指令進行安裝：
 ```sh
-$ sudo apt-get install heat-api heat-api-cfn heat-engine python-heatclient
+$ sudo apt-get install -y heat-api heat-api-cfn heat-engine
 ```
-> 若有使用```magnum```的話，請務必再安裝```heat-api-cloudwatch```。
+> 若有使用`magnum`的話，請務必再安裝`heat-api-cloudwatch`。
 
-安裝完成後，編輯```/etc/heat/heat.conf```設定檔，在```[DEFAULT]```部分加入以下內容：
+安裝完成後，編輯`/etc/heat/heat.conf`設定檔，在`[DEFAULT]`部分加入以下內容：
 ```
 [DEFAULT]
 ...
@@ -105,25 +105,25 @@ stack_domain_admin = heat_domain_admin
 stack_domain_admin_password = HEAT_DOMAIN_PASS
 stack_user_domain_name = heat
 ```
-> 這邊```HEAT_PASS```與```HEAT_DOMAIN_PASS```可以隨需求修改。
+> 這邊`HEAT_PASS`與`HEAT_DOMAIN_PASS`可以隨需求修改。
 
-在```[database]```部分修改使用以下方式：
+在`[database]`部分修改使用以下方式：
 ```
 [database]
 connection = mysql+pymysql://heat:HEAT_DBPASS@10.0.0.11/heat
 ```
-> 這邊```HEAT_DBPASS```可以隨需求修改。
+> 這邊`HEAT_DBPASS`可以隨需求修改。
 
-在```[oslo_messaging_rabbit]```部分加入以下內容：
+在`[oslo_messaging_rabbit]`部分加入以下內容：
 ```
 [oslo_messaging_rabbit]
 rabbit_host = 10.0.0.11
 rabbit_userid = openstack
 rabbit_password = RABBIT_PASS
 ```
-> 這邊```RABBIT_PASS```可以隨需求修改。
+> 這邊`RABBIT_PASS`可以隨需求修改。
 
-在```[keystone_authtoken]```部分加入以下內容：
+在`[keystone_authtoken]`部分加入以下內容：
 ```
 [keystone_authtoken]
 auth_uri = http://10.0.0.11:5000
@@ -136,10 +136,10 @@ project_name = service
 username = heat
 password = HEAT_PASS
 ```
-> 這邊```HEAT_PASS```可以隨需求修改。
+> 這邊`HEAT_PASS`可以隨需求修改。
 
-在```[trustee]```部分加入以下內容：
-```sh
+在`[trustee]`部分加入以下內容：
+```
 [trustee]
 auth_url = http://10.0.0.11:35357
 auth_plugin = password
@@ -147,13 +147,16 @@ user_domain_name = default
 username = heat
 password = HEAT_PASS
 ```
-> 這邊```HEAT_PASS```可以隨需求修改。
+> 這邊`HEAT_PASS`可以隨需求修改。
 
-在最底部加入以下內容：
-```sh
+在`[clients_keystone]`部分加入以下內容：
+```
 [clients_keystone]
 auth_uri = http://10.0.0.11:5000
+```
 
+在`[ec2authtoken]`部分加入以下內容：
+```
 [ec2authtoken]
 auth_uri = http://10.0.0.11:5000
 ```
@@ -176,12 +179,12 @@ $ sudo rm -f /var/lib/heat/heat.sqlite
 ```
 
 ### 驗證服務
-首先在 ```Controller``` 節點導入 ```admin``` 帳號來驗證服務：
+首先在`Controller`節點導入`admin`帳號來驗證服務：
 ```sh
 $ . admin-openrc
 ```
 
-建立一個```test-stack.yml```板模檔案，在裡面加入以下內容：
+建立一個`test-stack.yml`板模檔案，在裡面加入以下內容：
 ```
 heat_template_version: 2014-10-16
 description: A simple server.
@@ -212,14 +215,15 @@ outputs:
 完成後，可以透過 Heat client 程式來使用板模，指令如下：
 ```sh
 $ NET_ID=$(nova net-list | awk '/ admin-net / { print $2 }')
-$ heat stack-create -f test-stack.yml -P "ImageID=cirros-0.3.4-x86_64;NetID=$NET_ID" testStack
+$ heat stack-create -f test-stack.yml \
+-P "ImageID=cirros-0.3.4-x86_64;NetID=$NET_ID" testStack
 +--------------------------------------+------------+--------------------+----------------------+
 | id                                   | stack_name | stack_status       | creation_time        |
 +--------------------------------------+------------+--------------------+----------------------+
 | 477d96b4-d547-4069-938d-32ee990834af | testStack  | CREATE_IN_PROGRESS | 2014-04-06T15:11:01Z |
 +--------------------------------------+------------+--------------------+----------------------+
 ```
-> P.S 這邊```NET_ID```要注意執行指令時，抓取的網路是否存在。
+> P.S 這邊`NET_ID`要注意執行指令時，抓取的網路是否存在。
 
 透過 Heat client 程式來查看列表，指令如下：
 ```sh
@@ -233,13 +237,17 @@ $ heat stack-list
 
 透過 Heat client 程式來查看服務列表，指令如下：
 ```sh
-$ heat service-list
-+------------+-------------+--------------------------------------+------------+--------+----------------------------+--------+
-| hostname   | binary      | engine_id                            | host       | topic  | updated_at                 | status |
-+------------+-------------+--------------------------------------+------------+--------+----------------------------+--------+
-| controller | heat-engine | 3e85d1ab-a543-41aa-aa97-378c381fb958 | controller | engine | 2015-10-13T14:16:06.000000 | up     |
-| controller | heat-engine | 45dbdcf6-5660-4d5f-973a-c4fc819da678 | controller | engine | 2015-10-13T14:16:06.000000 | up     |
-| controller | heat-engine | 51162b63-ecb8-4c6c-98c6-993af899c4f7 | controller | engine | 2015-10-13T14:16:06.000000 | up     |
-| controller | heat-engine | 8d7edc6d-77a6-460d-bd2a-984d76954646 | controller | engine | 2015-10-13T14:16:06.000000 | up     |
-+------------+-------------+--------------------------------------+------------+--------+----------------------------+--------+
+$ openstack orchestration service list
++-------------+-------------+--------------------------+-------------+--------+--------------------------+--------+
+| hostname    | binary      | engine_id                | host        | topic  | updated_at               | status |
++-------------+-------------+--------------------------+-------------+--------+--------------------------+--------+
+| controller1 | heat-engine | ff8e8263-363e-4496-a9b3- | controller1 | engine | 2016-10-12T09:42:45.0000 | up     |
+|             |             | 9e65a0f2d86f             |             |        | 00                       |        |
+| controller1 | heat-engine | 96032e24-599d-413a-      | controller1 | engine | 2016-10-12T09:42:44.0000 | up     |
+|             |             | a3d8-3faeae6d3e08        |             |        | 00                       |        |
+| controller1 | heat-engine | ea90e4a1-38d6-4b79-b22b- | controller1 | engine | 2016-10-12T09:42:44.0000 | up     |
+|             |             | 43b48a33ba59             |             |        | 00                       |        |
+| controller1 | heat-engine | c309fae9-2ce6-4733-82aa- | controller1 | engine | 2016-10-12T09:42:44.0000 | up     |
+|             |             | 9aa6f13ce308             |             |        | 00                       |        |
++-------------+-------------+--------------------------+-------------+--------+--------------------------+--------+
 ```
