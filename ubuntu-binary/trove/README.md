@@ -83,7 +83,7 @@ api_paste_config = /etc/trove/api-paste.ini
 [database]
 connection = mysql+pymysql://trove:TROVE_DBPASS@10.0.0.11/trove
 ```
-> 這邊```TROVE_DBPASS```可以隨需求修改。
+> 這邊`TROVE_DBPASS`可以隨需求修改。
 
 在`[oslo_messaging_rabbit]`部分加入以下內容：
 ```
