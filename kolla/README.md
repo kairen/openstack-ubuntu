@@ -54,7 +54,7 @@ iface <ethx> inet manual
 ### 部署 Docker Registry
 首先進入到 `docker-registry` 節點，本教學採用一台虛擬機作為部署使用，並安裝 Docker engine：
 ```sh
-$ curl http://files.imaclouds.com/scripts/docker_install.sh | sh
+$ curl -fsSL https://get.docker.com/ | sh
 ```
 
 安裝完成 Docker engine 後，透過以下指令建置 Docker registry：
@@ -87,34 +87,45 @@ df9a135a6949: Pushed
 ### 部署節點準備
 當完成上述後，即可進行部署節點的相依軟體安裝，首先在`每台節點`透過以下指令更新與安裝一些套件：
 ```sh
+$ sudo apt-get install -y linux-image-generic-lts-wily
 $ sudo apt-get update -y && sudo apt-get upgrade -y
 $ sudo apt-get install -y python-pip python-dev
-$ curl http://files.imaclouds.com/scripts/docker_install.sh | sh
+$ curl -fsSL https://get.docker.com/ | sh
 ```
 
 接著安裝 docker-python 函式庫：
 ```sh
-$ sudo pip install -U pip
-$ sudo pip install -U docker-py
+$ sudo pip install -U pip docker-py
 ```
 
 編輯每台節點的`/etc/default/docker`檔案，加入以下內容：
-```sh
+```
 DOCKER_OPTS="--insecure-registry <registry-ip>:5000"
 ```
 > 這邊`<registry-ip>`為 Docker registry 的 IP 位址。
 
-完成後重新啟動每台節點，並執行 mount share ：
-```sh
-$ apt-get install -y linux-image-generic-lts-wily && sudo reboot
-$ sudo mount --make-shared /run
+編輯```/etc/rc.local```檔案，加入以下內容：
 ```
+mount --make-shared /run
+
+# 在 compute 節點額外加入
+mount --make-shared /var/lib/nova/mnt
+```
+
+接著在`compute1`節點執行以下指令：
+```sh
+$ sudo mkdir -p /var/lib/nova/mnt /var/lib/nova/mnt1
+$ sudo mount --bind /var/lib/nova/mnt1 /var/lib/nova/mnt
+$ sudo mount --make-shared /var/lib/nova/mnt
+```
+
+完成後重新啟動每台節點，已更新 Kernel。
 
 當上述步驟都完成後，進入到`controller1`的`root`使用者執行以下指令安裝與設定額外套件：
 ```sh
 $ sudo apt-get install -y software-properties-common && sudo apt-add-repository -y ppa:ansible/ansible
 $ sudo apt-get update
-$ sudo apt-get install -y ansible ntp libffi-dev libssl-dev gcc git
+$ sudo apt-get install -y ansible ntp libffi-dev libssl-dev gcc git python-pip
 $ sudo timedatectl set-timezone Asia/Taipei
 $ sudo service ntp reload && sudo service ntp restart
 ```
@@ -138,8 +149,10 @@ $ git clone https://github.com/openstack/kolla.git
 $ cd kolla && pip install .
 $ pip install tox && pip install -U python-openstackclient && tox -e genconfig
 $ cp -r etc/kolla /etc/
+$ git clone https://github.com/openstack/kolla-ansible.git
+$ cd kolla-ansible/ && pip install .
 ```
-> P.S. 使用者都採用`root`。這邊 kolla 版本使用 `Mitaka`，可自行修改。
+> P.S. 使用者都採用`root`。這邊 kolla 版本使用`master`分支進行安裝。
 
 接著執行指令進行建立 Docker 映像檔，若不指定名稱預設下將建立全部映像檔，如以下：
 ```sh
@@ -147,10 +160,10 @@ $ kolla-build --base ubuntu --type source --registry {registry-ip}:5000 --push
 ```
 > 這邊`{registry-ip}`為 Docker registry 的 IP 位址。
 
-> 若要更改建置的映像檔，可以編輯`/etc/kolla/kolla-build.conf`檔案，修改以下內容：
+> 若要更改建構的映像檔版本與系統，可以編輯`/etc/kolla/kolla-build.conf`檔案修改以下內容：
 ```
 base = centos
-base_tag = 2.0.3
+base_tag = 3.0.1
 push = true
 install_type = rdo
 registry = {registry-ip}:5000
@@ -182,7 +195,7 @@ compute1
 config_strategy: "COPY_ALWAYS"
 kolla_base_distro: "ubuntu"
 kolla_install_type: "source"
-openstack_release: "3.0.0"
+openstack_release: "4.0.0"
 kolla_internal_vip_address: "10.0.0.10"
 docker_registry: "10.26.1.49:5000"
 network_interface: "eth0"
