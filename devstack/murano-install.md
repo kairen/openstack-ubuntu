@@ -1,27 +1,26 @@
 # DevStack Murano 安裝
-要透過 DevStack 安裝 Murano 只需要在```localrc```設定使用 murano 即可，首先下載 DevStack：
+所有 OpenStack 的元件與服務都支援了 DevStack 的部署，因此本篇簡單介紹如何使用 DevStack 部署 Murano 服務，首先取得最新版的 devstack 專案：
 ```sh
 $ git clone https://git.openstack.org/openstack-dev/devstack
 $ cd devstack
 ```
 
-編輯```localrc```，並加入以下內容：
+建立並編輯`local.conf`，並加入以下內容：
 ```sh
-HOST_IP=localhost
+[[local|localrc]]
+HOST_IP="<YOUR_HOST_PUBLIC_IP>"
 DATABASE_PASSWORD=password
 RABBIT_PASSWORD=password
 SERVICE_TOKEN=password
 SERVICE_PASSWORD=password
 ADMIN_PASSWORD=password
 
-ENABLED_SERVICES+=,q-svc,q-agt,q-dhcp,q-l3,q-meta,neutron
-enable_service heat h-api h-api-cfn h-api-cw h-eng
-
 enable_plugin murano git://git.openstack.org/openstack/murano
 enable_service murano-cfapi
+enable_service g-glare
 ```
 
-完成後執行```./stack.sh```開始進行安裝：
+完成後執行`./stack.sh`開始進行安裝：
 ```sh
 $ ./stack.sh
 ```

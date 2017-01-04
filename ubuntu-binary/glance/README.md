@@ -19,9 +19,9 @@ CREATE DATABASE glance;
 GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'localhost'  IDENTIFIED BY 'GLANCE_DBPASS';
 GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'%' IDENTIFIED BY 'GLANCE_DBPASS';
 ```
-> 這邊```GLANCE_DBPASS```可以隨需求修改。
+> 這邊`GLANCE_DBPASS`可以隨需求修改。
 
-完成後離開資料庫，接著要建立 Service 與 API Endpoint，首先導入 `admin` 環境變數：
+完成後離開資料庫，接著要建立 Service 與 API Endpoint，首先導入`admin`環境變數：
 ```sh
 $ . admin-openrc
 ```

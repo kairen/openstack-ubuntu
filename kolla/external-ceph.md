@@ -18,4 +18,4 @@ glance_backend_ceph: "yes"
 cinder_backend_ceph: "yes"
 nova_backend_ceph: "yes"
 ```
-(TBC..)
+(TBD..)
