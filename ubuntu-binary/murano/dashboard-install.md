@@ -31,5 +31,3 @@ $ sudo ./manage.py compress
 ```sh
 $ sudo service apache2 restart
 ```
-
-![](horizon-magnum.png)

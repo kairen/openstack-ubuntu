@@ -1,7 +1,8 @@
 # Horizon 安裝與設定
 首先透過`apt-get`下載相關套件：
 ```sh
-sudo apt-get install -y python-setuptools python-virtualenv python-dev gettext git gcc libpq-dev python-pip python-tox libffi-dev
+$ sudo apt-get install -y python-setuptools python-virtualenv python-dev \
+gettext git gcc libpq-dev python-pip python-tox libffi-dev
 ```
 
 利用 Git 來取的 Horizon 的原始碼，並切換至最新的 Branch 進行安裝：
@@ -23,7 +24,7 @@ COMPRESS_OFFLINE = True
 OPENSTACK_HOST = "10.0.0.11"
 ALLOWED_HOSTS = '*'
 
->:wq = {
+CACHES = {
    'default': {
        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
        'LOCATION': '10.0.0.11:11211',
@@ -72,7 +73,7 @@ $ sudo apt-get install apache2 libapache2-mod-wsgi
     SetEnv APACHE_RUN_GROUP ubuntu
     WSGIProcessGroup horizon
 
-    WSGIScriptAlias / /opt/horizon/openstack_dashboard/wsgi/django.wsgi
+    WSGIScriptAlias /horizon /opt/horizon/openstack_dashboard/wsgi/django.wsgi
 
     <Location "/">
         Require all granted
@@ -93,14 +94,14 @@ $ sudo service apache2 restart
 
 ## 驗證操作
 這個部分將描述如何進行儀表板的驗證操作，依照以下兩個簡單步驟：
-1. 開啟web瀏覽器進入儀表板: [Horizon Dashboard](http://10.0.0.11)。
+1. 開啟web瀏覽器進入儀表板: [Horizon Dashboard](http://10.0.0.11/horizon)。
 2. 使用admin或demo的使用者登入。
 
 ![horizon](images/horizon.png)
 
 ### 問題解決
 若遇到`CommandError: An error occurred during rendering`的話，檢查是否為 material 造成，若是的話請編輯`openstack_dashboard/local/local_settings.py`檔案，修改只允許預設風格：
-```sh
+```
 AVAILABLE_THEMES = [
     ('default', 'Default', 'themes/default'),
 ]
