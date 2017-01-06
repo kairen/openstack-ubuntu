@@ -27,7 +27,7 @@ AVAILABLE_THEMES = [
 ```
 
 完成安裝後，編輯`/etc/openstack-dashboard/local_settings.py`設定檔，部分加入以下內容：
-```py
+```
 OPENSTACK_HOST = "10.0.0.11"
 ALLOWED_HOSTS = '*'
 
@@ -41,7 +41,7 @@ CACHES = {
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
 OPENSTACK_KEYSTONE_URL = "http://%s:5000/v3" % OPENSTACK_HOST
-c = "user"
+OPENSTACK_KEYSTONE_DEFAULT_ROLE = "user"
 OPENSTACK_KEYSTONE_MULTIDOMAIN_SUPPORT = True
 OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = 'default'
 
