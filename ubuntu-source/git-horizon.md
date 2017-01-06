@@ -1,34 +1,25 @@
 # Horizon 安裝與設定
-首先透過 ```apt-get``` 下載相關套件：
+首先透過`apt-get`下載相關套件：
 ```sh
-sudo apt-get install -y python-setuptools python-virtualenv python-dev gettext git gcc libpq-dev python-pip python-tox libffi-dev
+$ sudo apt-get install -y python-setuptools python-virtualenv python-dev \
+gettext git gcc libpq-dev python-pip python-tox libffi-dev
 ```
-透過git clone 來下載 ```OpenStack GitHub``` 的 Horizon 資源庫：
-```sh
-git clone https://github.com/openstack/horizon.git /opt/horizon stable/liberty
-```
-設定目錄權限，這邊 user 為```openstack```：
-```sh
-sudo chown -R ${USER}:${USER} /opt/horizon
-```
-> 若權限還有問題，可採用```sudo chmod 775 -R /opt/horizon```。
 
-編譯 i18n 訊息 Catalogs：
+利用 Git 來取的 Horizon 的原始碼，並切換至最新的 Branch 進行安裝：
 ```sh
-./run_tests.sh --compilemessages
+$ sudo git clone https://git.openstack.org/openstack/horizon.git /opt/horizon -b stable/newton
+$ sudo chown -R ${USER}:${USER} /opt/horizon
+$ cd /opt/horizon && sudo pip install .
 ```
-> 這個指令使用  Python virtualenv 進行編譯，會產生一個```.venv```目錄。結束後可以刪除。
 
-透過 ```pip``` 套件進行安裝 Horizon：
+接著複製設定檔範本來進行設定：
 ```sh
-sudo pip install .
+$ cp openstack_dashboard/local/local_settings.py.example \
+openstack_dashboard/local/local_settings.py
 ```
-複製 ```openstack_dashboard/local/local_settings.py``` 設定檔：
-```sh
-cp openstack_dashboard/local/local_settings.py.example openstack_dashboard/local/local_settings.py
+
+然後編輯`openstack_dashboard/local/local_settings.py`設定檔，修改一下內容：
 ```
-加入與修改 ```openstack_dashboard/local/local_settings.py```的以下變數：
-```sh
 COMPRESS_OFFLINE = True
 OPENSTACK_HOST = "10.0.0.11"
 ALLOWED_HOSTS = '*'
@@ -36,7 +27,7 @@ ALLOWED_HOSTS = '*'
 CACHES = {
    'default': {
        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-       'LOCATION': '127.0.0.1:11211',
+       'LOCATION': '10.0.0.11:11211',
    }
 }
 
@@ -55,28 +46,18 @@ OPENSTACK_API_VERSIONS = {
 ```
 > 更多的部署與設定可以參考 [Deploying Horizon](http://docs.openstack.org/developer/horizon/topics/deployment.html)與[Settings and Configuration](http://docs.openstack.org/developer/horizon/topics/settings.html)。
 
-壓縮 Django：
+壓縮 Django 靜態檔案，透過以下指令進行(在`/opt/horizon`目錄下執行)：
 ```sh
 ./manage.py collectstatic
 ./manage.py compress
 ```
 
-設定一個支援 WSGI 的 Web server，首先安裝相關套件：
+完成後需要安裝 WSGI mod 來提供 Apache2 來執行 Django ：
 ```sh
-sudo apt-get install apache2 libapache2-mod-wsgi
+$ sudo apt-get install apache2 libapache2-mod-wsgi
 ```
 
-可以採用內建的```openstack_dashboard/wsgi/django.wsgi```檔案，也可以自行建立：
-```sh
-./manage.py make_web_conf --wsgi
-```
-
-我們需為 Apache2 提供一個 WSGI 設定檔案 ```/etc/apache2/sites-available/horizon.conf```，可以採用以下指令產生：
-```sh
-./manage.py make_web_conf --apache | sudo tee /etc/apache2/sites-available/horizon.conf
-```
-
-修改與設定 Apache2 的 sites-available 下的 ```/etc/apache2/sites-available/horizon.conf```：
+建立一個 Apache2 設定檔`/etc/apache2/sites-available/horizon.conf`，並加入以下內容：
 ```
 <VirtualHost *:80>
     DocumentRoot /opt/horizon/
@@ -92,7 +73,7 @@ sudo apt-get install apache2 libapache2-mod-wsgi
     SetEnv APACHE_RUN_GROUP ubuntu
     WSGIProcessGroup horizon
 
-    WSGIScriptAlias / /opt/horizon/openstack_dashboard/wsgi/django.wsgi
+    WSGIScriptAlias /horizon /opt/horizon/openstack_dashboard/wsgi/django.wsgi
 
     <Location "/">
         Require all granted
@@ -104,17 +85,24 @@ sudo apt-get install apache2 libapache2-mod-wsgi
     </Location>
 </Virtualhost>
 ```
-> 該檔案可以自行設定，也可以參考 [DevStack](http://git.openstack.org/cgit/openstack-dev/devstack/tree/files/apache-horizon.template) 的範例。
 
-最後，啟用配置與重啟 apache2 服務：
+最後使用該設定檔，並重新啟動 Apache2：
 ```sh
- sudo a2ensite horizon
- sudo service apache2 restart
+$ sudo a2ensite horizon
+$ sudo service apache2 restart
 ```
 
-# 驗證操作
+## 驗證操作
 這個部分將描述如何進行儀表板的驗證操作，依照以下兩個簡單步驟：
-1. 開啟web瀏覽器進入儀表板: http://controller。
+1. 開啟web瀏覽器進入儀表板: [Horizon Dashboard](http://10.0.0.11/horizon)。
 2. 使用admin或demo的使用者登入。
 
 ![horizon](images/horizon.png)
+
+### 問題解決
+若遇到`CommandError: An error occurred during rendering`的話，檢查是否為 material 造成，若是的話請編輯`openstack_dashboard/local/local_settings.py`檔案，修改只允許預設風格：
+```
+AVAILABLE_THEMES = [
+    ('default', 'Default', 'themes/default'),
+]
+```

@@ -45,7 +45,13 @@ manual
 $ sudo apt-get install keystone apache2 libapache2-mod-wsgi
 ```
 
-安裝完後，編輯`/etc/keystone/keystone.conf`設定檔，在`[database]`部分修改使用以下方式：
+安裝完後，編輯`/etc/keystone/keystone.conf`設定檔，在`[DEFAULT]`部分修改使用以下方式：
+```
+[DEFAULT]
+admin_token = 21d7fb48086e09f30d40be5a5e95a7196f2052b2cae6b491
+```
+
+在`[database]`部分修改使用以下方式：
 ```
 [database]
 # connection = sqlite:////var/lib/keystone/keystone.db

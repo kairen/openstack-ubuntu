@@ -83,6 +83,10 @@ The push refers to a repository [localhost:5000/ubuntu]
 df9a135a6949: Pushed
 ...
 ```
+> 其他 Docker registry 列表：
+> * [Portus](https://github.com/SUSE/Portus)
+> * [Atomic Registry](http://www.projectatomic.io/registry/)
+> * [Private Registries in RancherOS](https://docs.rancher.com/os/configuration/private-registries/)
 
 ### 部署節點準備
 當完成上述後，即可進行部署節點的相依軟體安裝，首先在`每台節點`透過以下指令更新與安裝一些套件：
@@ -149,6 +153,8 @@ $ git clone https://github.com/openstack/kolla.git
 $ cd kolla && pip install .
 $ pip install tox && pip install -U python-openstackclient && tox -e genconfig
 $ cp -r etc/kolla /etc/
+
+## 安裝 kolla-ansible
 $ git clone https://github.com/openstack/kolla-ansible.git
 $ cd kolla-ansible/ && pip install .
 ```
@@ -163,7 +169,7 @@ $ kolla-build --base ubuntu --type source --registry {registry-ip}:5000 --push
 > 若要更改建構的映像檔版本與系統，可以編輯`/etc/kolla/kolla-build.conf`檔案修改以下內容：
 ```
 base = centos
-base_tag = 3.0.1
+base_tag = 3.0.2
 push = true
 install_type = rdo
 registry = {registry-ip}:5000
@@ -174,7 +180,7 @@ registry = {registry-ip}:5000
 ## 部署 OpenStack 節點
 當完成映像檔建立後，即可開始進行部署 OpenStack 節點。
 
-首先到`controller1`進入剛下載的 kolla 專案目錄，並編輯`ansible/inventory/multinode`檔案，修改以下內容：
+首先到`controller1`進入剛下載的`kolla-ansible`專案目錄，並編輯`ansible/inventory/multinode`檔案，修改以下內容：
 ```sh
 [control]
 controller1
@@ -191,7 +197,7 @@ compute1
 > 其餘可以依據需求變更。
 
 接著編輯`/etc/kolla/globals.yml`檔案，修改以下內容：
-```yaml
+```yml
 config_strategy: "COPY_ALWAYS"
 kolla_base_distro: "ubuntu"
 kolla_install_type: "source"
