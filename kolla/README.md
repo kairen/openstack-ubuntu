@@ -200,9 +200,9 @@ network1
 compute1
 
 [storage]
-# storage01
+controller1
 ```
-> 其餘可以依據需求變更。
+> 這邊由於機器不夠，所以將 storage 也放到 controller。
 
 接著編輯`/etc/kolla/globals.yml`檔案，修改以下內容：
 ```yml
@@ -227,7 +227,7 @@ kolla_external_vip_address: "10.26.1.251"
 kolla_external_vip_interface: "eth3"
 ```
 
-Cinder LVM:
+(Option)建立 Cinder LVM volume group:
 ```sh
 $ sudo apt-get install lvm2 -y
 $ sudo pvcreate /dev/sdb
