@@ -220,6 +220,7 @@ neutron_plugin_agent: "openvswitch"
 # OpenStack service
 enable_cinder: "yes"
 enable_neutron_lbaas: "yes"
+cinder_volume_group: "cinder-volumes"
 ```
 > 若要將 API 開放給 Public network 存取的話，需要設定以下內容：
 ```
