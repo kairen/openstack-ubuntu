@@ -45,12 +45,17 @@ log file = /var/log/ceph/radosgw.controller1.log
 rgw dns name = controller1
 
 rgw keystone url = http://10.0.0.11:5000
-rgw keystone admin token = e0cae61b16320e8569fd
-rgw keystone accepted roles = Member, _member_, admin
+rgw keystone admin user = admin
+rgw keystone admin password = admin
+rgw keystone admin project = admin
+rgw keystone admin domain = default
+rgw keystone api version = 3
+rgw keystone accepted roles = SwiftOperator,admin,_member_, project_admin, member2
 rgw keystone token cache size = 500
 rgw keystone revocation interval = 500
 rgw s3 auth use keystone = true
-rgw nss db path = /var/ceph/nss
+rgw keystone verify ssl = false
+
 ```
 
 完成後重新啟動 radosgw 服務：
