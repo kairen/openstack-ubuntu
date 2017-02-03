@@ -1,15 +1,5 @@
 # Ceph 與 Keystone 整合
-在 ```controller``` (keystone api 所在主機）執行下面指令，並將 controller 的 /var/ceph/nss 內的檔案(cert8.db  key3.db  secmod.db)複製到 radosgw 主機的 /var/ceph/nss 目錄：
-```sh
-$ sudo mkdir -p /var/ceph/nss
-$ sudo openssl x509 -in /etc/keystone/ssl/certs/ca.pem -pubkey | \
-certutil -d /var/ceph/nss -A -n ca -t "TCu,Cu,Tuw"
-
-$ sudo openssl x509 -in /etc/keystone/ssl/certs/signing_cert.pem -pubkey | \
-certutil -A -d /var/ceph/nss -n signing_cert -t "P,P,P"
-```
-
-在能執行 keystone 指令的任意電腦，執行以下指令：
+首先透過 Keystone 建立 Swift 的認證資訊：
 ```sh
 # 建立 Swift User
 $ openstack user create --domain default \
@@ -34,8 +24,7 @@ $ openstack endpoint create --region RegionOne \
 object-store admin http://10.0.0.11:8080/swift/v1
 ```
 
-### 變更 ceph.conf 設定
-到部署 server 上，或手動修改每台 gateway node(s) ，增加以下內容：
+接著進入到部署的`rgw`節點中，編輯`/etc/ceph/ceph.conf`設定檔加入以下內容：
 ```
 [client.radosgw.controller1]
 host = controller1
@@ -55,7 +44,6 @@ rgw keystone token cache size = 500
 rgw keystone revocation interval = 500
 rgw s3 auth use keystone = true
 rgw keystone verify ssl = false
-
 ```
 
 完成後重新啟動 radosgw 服務：
