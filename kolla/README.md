@@ -161,10 +161,6 @@ $ git clone https://github.com/openstack/kolla.git -b stable/newton
 $ cd kolla && pip install .
 $ pip install tox python-openstackclient && tox -e genconfig
 $ cp -r etc/kolla /etc/
-
-## 安裝 kolla-ansible
-$ git clone https://github.com/openstack/kolla-ansible.git
-$ cd kolla-ansible/ && pip install .
 ```
 
 接著執行指令進行建立 Docker 映像檔，若不指定名稱預設下將建立全部映像檔，如以下：
