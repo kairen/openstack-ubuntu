@@ -87,12 +87,14 @@ $ sudo apt-get install -y neutron-server neutron-plugin-ml2
 ...
 core_plugin = ml2
 service_plugins = router
-allow_overlapping_ips = True
-rpc_backend = rabbit
+allow_overlapping_ips = true
 auth_strategy = keystone
 notify_nova_on_port_status_changes = True
 notify_nova_on_port_data_changes = True
+
+transport_url = rabbit://openstack:RABBIT_PASS@10.0.0.11
 ```
+> 這邊`RABBIT_PASS`可以隨需求修改。
 
 在`[database]`部分修改使用以下方式：
 ```
@@ -100,15 +102,6 @@ notify_nova_on_port_data_changes = True
 # connection = sqlite:////var/lib/neutron/neutron.sqlite
 connection = mysql+pymysql://neutron:NEUTRON_DBPASS@10.0.0.11/neutron
 ```
-
-在`[oslo_messaging_rabbit]`部分加入以下設定：
-```
-[oslo_messaging_rabbit]
-rabbit_host = 10.0.0.11
-rabbit_userid = openstack
-rabbit_password = RABBIT_PASS
-```
-> 這邊`RABBIT_PASS`可以隨需求修改。
 
 在`[keystone_authtoken]`部分加入以下設定：
 ```
@@ -214,14 +207,20 @@ $ . admin-openrc
 
 這邊可以透過 Neutron client 來查看外部網路列表，如以下方式：
 ```sh
-$ neutron ext-list
-+---------------------------+-----------------------------------------------+
-| alias                     | name                                          |
-+---------------------------+-----------------------------------------------+
-| default-subnetpools       | Default Subnetpools                           |
-| network-ip-availability   | Network IP Availability                       |
-| network_availability_zone | Network Availability Zone                     | .......                   | ....
-+---------------------------+-----------------------------------------------+
+$ openstack extension list --network
++-------------------------------------------------------+---------------------------+--------------------------------------------------------+
+| Name                                                  | Alias                     | Description                                            |
++-------------------------------------------------------+---------------------------+--------------------------------------------------------+
+| Default Subnetpools                                   | default-subnetpools       | Provides ability to mark and use a subnetpool as the   |
+|                                                       |                           | default                                                |
+| Network IP Availability                               | network-ip-availability   | Provides IP availability data for each network and     |
+|                                                       |                           | subnet.                                                |
+| Network Availability Zone                             | network_availability_zone | Availability zone support for network.                 |
+| Auto Allocated Topology Services                      | auto-allocated-topology   | Auto Allocated Topology Services.                      |
+| Neutron L3 Configurable external gateway mode         | ext-gw-mode               | Extension of the router abstraction for specifying     |
+| Neutron L3 Configurable external gateway mode         | ext-gw-mode               | Extension of the router abstraction for specifying     |
+| ...                                                   | ...                       | ...                                                    |
++-------------------------------------------------------+---------------------------+--------------------------------------------------------+
 ```
 
 # Network Node
@@ -254,27 +253,19 @@ neutron-openvswitch-agent
 [DEFAULT]
 ...
 verbose = True
-rpc_backend = rabbit
 auth_strategy = keystone
 core_plugin = ml2
 service_plugins = router
 allow_overlapping_ips = True
+transport_url = rabbit://openstack:RABBIT_PASS@10.0.0.11
 ```
+> 這邊`RABBIT_PASS`可以隨需求修改。
 
 在`[database]`部分將所有 connection 與 sqlite 的參數註解掉：
 ```sh
 [database]
 # connection = sqlite:////var/lib/neutron/neutron.sqlite
 ```
-
-在`[oslo_messaging_rabbit]`部分加入以下設定：
-```
-[oslo_messaging_rabbit]
-rabbit_host = 10.0.0.11
-rabbit_userid = openstack
-rabbit_password = RABBIT_PASS
-```
-> 這邊`RABBIT_PASS`可以隨需求修改。
 
 在`[keystone_authtoken]`部分加入以下設定：
 ```
@@ -391,10 +382,10 @@ firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
 [DEFAULT]
 ...
 verbose = True
-interface_driver = neutron.agent.linux.interface.OVSInterfaceDriver
+interface_driver = openvswitch
 external_network_bridge =
 ```
-> `P.S.`若使用`Linux bridge`則修改`interface_driver`為`neutron.agent.linux.interface.BridgeInterfaceDriver`。
+> `P.S.`若使用`Linux bridge`則修改`interface_driver`為`linuxbridge`。
 
 > external_network_bridge 參數預設保留空白，該參數是使用單一的 Agent 來提供多個外部網路，細節設定可以參考 [L3 Agent](http://docs.openstack.org/havana/config-reference/content/section_adv_cfg_l3_agent.html)。
 
@@ -404,11 +395,11 @@ external_network_bridge =
 [DEFAULT]
 ...
 verbose = True
-interface_driver = neutron.agent.linux.interface.OVSInterfaceDriver
+interface_driver = openvswitch
 dhcp_driver = neutron.agent.linux.dhcp.Dnsmasq
 enable_isolated_metadata = True
 ```
-> `P.S.`若使用`Linux bridge`則修改`interface_driver`為`neutron.agent.linux.interface.BridgeInterfaceDriver`。
+> `P.S.`若使用`Linux bridge`則修改`interface_driver`為`linuxbridge`。
 
 完成上述後，下一步可以依需求設定，因為類似 VXLAN 的協定包含了額外的 Header 封包，這些封包增加了網路開銷，而減少了有效的封包可用空間。在不了解虛擬網路架構的情況下，Instance 會用預設的 ETH Maximum Transmission Unit（MTU）1500 bytes 來傳送封包。IP 網路利用 Path MTU discovery（PMTUD）機制來偵測與調整封包大小。但是有些作業系統、網路阻塞、缺乏對 PMTUD 支援等因素，會造成效能的損失與連接錯誤。
 
@@ -501,19 +492,14 @@ $ . admin-openrc
 這邊可以透過 Neutron client 來查看 Agents 狀態，如以下方式：
 ```sh
 $ openstack network agent list
-+--------------------+--------------------+----------+-------------------+-------+-------+-----------------------+
-| ID                 | Agent Type         | Host     | Availability Zone | Alive | State | Binary                |
-+--------------------+--------------------+----------+-------------------+-------+-------+-----------------------+
-| 57810982-9332-42a8 | L3 agent           | network1 | nova              | True  | UP    | neutron-l3-agent      |
-| -9d6b-84b3623efbec |                    |          |                   |       |       |                       |
-| a61723a9-cb84      | Open vSwitch agent | network1 | None              | True  | UP    | neutron-openvswitch-  |
-| -4eeb-             |                    |          |                   |       |       | agent                 |
-| 86b0-6dc441d8e513  |                    |          |                   |       |       |                       |
-| b4e99ea9-7d5c-4930 | Metadata agent     | network1 | None              | True  | UP    | neutron-metadata-     |
-| -bcd3-12498146c65a |                    |          |                   |       |       | agent                 |
-| c46e2ef9-f960-4a52 | DHCP agent         | network1 | nova              | True  | UP    | neutron-dhcp-agent    |
-| -a90e-36dc4d19e9f9 |                    |          |                   |       |       |                       |
-+--------------------+--------------------+----------+-------------------+-------+-------+-----------------------+
++--------------------------------------+--------------------+----------+-------------------+-------+-------+---------------------------+
+| ID                                   | Agent Type         | Host     | Availability Zone | Alive | State | Binary                    |
++--------------------------------------+--------------------+----------+-------------------+-------+-------+---------------------------+
+| 5570d60e-737d-4970-b0cd-cac54460eb87 | DHCP agent         | network1 | nova              | True  | UP    | neutron-dhcp-agent        |
+| 598780db-ad4c-4cac-b708-449b5dfcc455 | L3 agent           | network1 | nova              | True  | UP    | neutron-l3-agent          |
+| c9489e94-53ab-4554-9901-2ae141ba41b5 | Metadata agent     | network1 | None              | True  | UP    | neutron-metadata-agent    |
+| ca3840bc-5b99-4f82-bdec-a4ebe6f9baab | Open vSwitch agent | network1 | None              | True  | UP    | neutron-openvswitch-agent |
++--------------------------------------+--------------------+----------+-------------------+-------+-------+---------------------------+
 ```
 
 # Compute Node
@@ -521,7 +507,7 @@ Neutron 在 Compute 節點主要安裝 Neutron L2 Agent 來讓虛擬機連接虛
 
 ### Compute 安裝前準備
 在進行安裝 Neutron 相關套件之前，必須先讓 Compute 節點主機設定一些 Kernel 網路參數，透過編輯`/etc/sysctl.conf`加入以下參數：
-```sh
+```
 net.ipv4.conf.all.rp_filter=0
 net.ipv4.conf.default.rp_filter=0
 net.bridge.bridge-nf-call-iptables=1
@@ -545,27 +531,19 @@ $ sudo apt-get install -y neutron-openvswitch-agent
 [DEFAULT]
 ...
 verbose = True
-rpc_backend = rabbit
 auth_strategy = keystone
 core_plugin = ml2
 service_plugins = router
 allow_overlapping_ips = True
+transport_url = rabbit://openstack:RABBIT_PASS@10.0.0.11
 ```
+> 這邊`RABBIT_PASS`可以隨需求修改。
 
 在`[database]`部分將所有 connection 與 sqlite 的參數註解掉：
 ```sh
 [database]
 # connection = sqlite:////var/lib/neutron/neutron.sqlite
 ```
-
-在`[oslo_messaging_rabbit]`部分加入以下設定：
-```
-[oslo_messaging_rabbit]
-rabbit_host = 10.0.0.11
-rabbit_userid = openstack
-rabbit_password = RABBIT_PASS
-```
-> 這邊`RABBIT_PASS`可以隨需求修改。
 
 在`[keystone_authtoken]`部分加入以下設定：
 ```

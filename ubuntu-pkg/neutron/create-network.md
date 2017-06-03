@@ -15,9 +15,9 @@
 
 這邊可以透過 Neutron client 來查看建立外部網路，如以下方式：
 ```sh
-$ neutron net-create ext-net --router:external \
---provider:physical_network external \
---provider:network_type flat
+$ openstack network create --share --external \
+--provider-physical-network external \
+--provider-network-type flat ext-net
 ```
 > 這邊採用`flat`。
 
@@ -26,18 +26,31 @@ $ neutron net-create ext-net --router:external \
 +---------------------------+--------------------------------------+
 | Field                     | Value                                |
 +---------------------------+--------------------------------------+
-| admin_state_up            | True                                 |
-| id                        | 3f2d51f2-e56e-4530-8b7b-7abb35eae793 |
-| mtu                       | 0                                    |
+| admin_state_up            | UP                                   |
+| availability_zone_hints   |                                      |
+| availability_zones        |                                      |
+| created_at                | 2017-06-03T11:01:08Z                 |
+| description               |                                      |
+| dns_domain                | None                                 |
+| id                        | fcb5d5ef-f538-445f-b064-3e45d843f0ef |
+| ipv4_address_scope        | None                                 |
+| ipv6_address_scope        | None                                 |
+| is_default                | False                                |
+| mtu                       | 1500                                 |
 | name                      | ext-net                              |
+| port_security_enabled     | True                                 |
+| project_id                | 54b11ae3f8d54b098dc057e7b4b1f0bd     |
 | provider:network_type     | flat                                 |
 | provider:physical_network | external                             |
-| provider:segmentation_id  |                                      |
-| router:external           | True                                 |
-| shared                    | False                                |
+| provider:segmentation_id  | None                                 |
+| qos_policy_id             | None                                 |
+| revision_number           | 4                                    |
+| router:external           | External                             |
+| segments                  | None                                 |
+| shared                    | True                                 |
 | status                    | ACTIVE                               |
 | subnets                   |                                      |
-| tenant_id                 | cf8f9b8b009b429488049bb2332dc311     |
+| updated_at                | 2017-06-03T11:01:08Z                 |
 +---------------------------+--------------------------------------+
 ```
 
@@ -55,51 +68,53 @@ $ neutron net-create ext-net --router:external \
 ### 建立 External network 子網路
 這邊可以透過 Neutron client 來查看建立外部網路子網路，如以下方式：
 ```sh
-$ neutron subnet-create ext-net EXTERNAL_NETWORK_CIDR \
---allocation-pool start=FLOATING_IP_START,end=FLOATING_IP_END \
---disable-dhcp --gateway EXTERNAL_NETWORK_GATEWAY \
---name ext-subnet
+$ openstack subnet create --network ext-net \
+--allocation-pool start=START_IP_ADDRESS,end=END_IP_ADDRESS \
+--dns-nameserver DNS_RESOLVER --gateway PROVIDER_NETWORK_GATEWAY \
+--subnet-range PROVIDER_NETWORK_CIDR ext-subnet
 ```
-> * `EXTERNAL_NETWORK_CIDR`為 Public net 的 CIDR 網路，如`192.168.0.0/24`。
-* `FLOATING_IP_START`與`FLOATING_IP_END`為要分配的浮動 IP 範圍。
-* `EXTERNAL_NETWORK_GATEWAY`為 Public net 的閘道 IP 位址，如`192.168.0.1`。
+> * `PROVIDER_NETWORK_CIDR`為 Public net 的 CIDR 網路，如`192.168.0.0/24`。
+* `START_IP_ADDRESS`與`END_IP_ADDRESS`為要分配的浮動 IP 範圍。
+* `PROVIDER_NETWORK_GATEWAY`為 Public net 的閘道 IP 位址，如`192.168.0.1`。
+* `DNS_RESOLVER` 為該網路的 DNS Server IP。
 
 > <font color=red>最後要注意關閉此網路上的其他 DHCP 服務，因為虛擬機實例不直接連接到外部網路，而是透過 Neutron 來分配</font>
 
 一個實際範例如下所示：
 ```sh
-$ neutron subnet-create ext-net 10.26.1.0/24 \
---allocation-pool start=10.26.1.230,end=10.26.1.250 \
---disable-dhcp --gateway 10.26.1.254 \
---name ext-subnet
+$ openstack subnet create --network ext-net \
+--allocation-pool start=172.22.2.220,end=172.22.2.250 \
+--dns-nameserver 8.8.4.4 --gateway 172.22.2.254 \
+--subnet-range 172.22.2.0/24 \
+--no-dhcp ext-subnet
 ```
 
 成功的話會看到類似以下資訊：
 ```
-+-------------------+------------------------------------------------+
-| Field             | Value                                          |
-+-------------------+------------------------------------------------+
-| allocation_pools  | {"start": "10.26.1.230", "end": "10.26.1.250"} |
-| cidr              | 10.26.1.0/24                                   |
-| created_at        | 2016-10-11T10:07:10Z                           |
-| description       |                                                |
-| dns_nameservers   |                                                |
-| enable_dhcp       | False                                          |
-| gateway_ip        | 10.26.1.254                                    |
-| host_routes       |                                                |
-| id                | 7c3bd5a6-7dc8-41b1-92f3-75d0b91c3334           |
-| ip_version        | 4                                              |
-| ipv6_address_mode |                                                |
-| ipv6_ra_mode      |                                                |
-| name              | ext-subnet                                     |
-| network_id        | 3247cc07-715b-475c-8d56-3aa70bffbb01           |
-| project_id        | ba57e6880afe403dbf78f946766df5e0               |
-| revision_number   | 2                                              |
-| service_types     |                                                |
-| subnetpool_id     |                                                |
-| tenant_id         | ba57e6880afe403dbf78f946766df5e0               |
-| updated_at        | 2016-10-11T10:07:10Z                           |
-+-------------------+------------------------------------------------+
++-------------------+--------------------------------------+
+| Field             | Value                                |
++-------------------+--------------------------------------+
+| allocation_pools  | 172.22.2.220-172.22.2.250            |
+| cidr              | 172.22.2.0/24                        |
+| created_at        | 2017-06-03T11:10:28Z                 |
+| description       |                                      |
+| dns_nameservers   | 8.8.4.4                              |
+| enable_dhcp       | False                                |
+| gateway_ip        | 172.22.2.254                         |
+| host_routes       |                                      |
+| id                | 6c0e3360-fe3a-40a3-9e9f-03db317e5f97 |
+| ip_version        | 4                                    |
+| ipv6_address_mode | None                                 |
+| ipv6_ra_mode      | None                                 |
+| name              | ext-subnet                           |
+| network_id        | fcb5d5ef-f538-445f-b064-3e45d843f0ef |
+| project_id        | 54b11ae3f8d54b098dc057e7b4b1f0bd     |
+| revision_number   | 2                                    |
+| segment_id        | None                                 |
+| service_types     |                                      |
+| subnetpool_id     | None                                 |
+| updated_at        | 2017-06-03T11:10:28Z                 |
++-------------------+--------------------------------------+
 ```
 
 ## Tenant network (可略過，透過 Dashboard 操作即可)
