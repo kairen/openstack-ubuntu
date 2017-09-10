@@ -42,7 +42,7 @@ manual
 
 確認關閉自動啟動 Keystone 後，就可以直接安裝套件，透過以下指令安裝：
 ```sh
-$ sudo apt-get install keystone apache2 libapache2-mod-wsgi
+$ sudo apt install -y keystone apache2 libapache2-mod-wsgi
 ```
 
 安裝完後，編輯`/etc/keystone/keystone.conf`設定檔，在`[DEFAULT]`部分修改使用以下方式：
