@@ -54,7 +54,7 @@ image admin http://10.0.0.11:9292
 ### 套件安裝與設定
 在開始設定之前，首先要安裝相關套件與 OpenStack 服務套件，可以透過以下指令進行安裝：
 ```sh
-$ sudo apt-get install -y glance
+$ sudo apt install -y glance
 ```
 
 安裝完成後，編輯 `/etc/glance/glance-api.conf` 設定檔，在`[database]`部分修改使用以下方式：
@@ -146,15 +146,15 @@ $ sudo rm -f /var/lib/glance/glance.sqlite
 $ . admin-openrc
 ```
 
-從網路上下載一個測試用映像檔 `cirros-0.3.4-x86_64`：
+從網路上下載一個測試用映像檔 `cirros-0.3.5-x86_64`：
 ```sh
-$ wget http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img
+$ wget http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-x86_64-disk.img
 ```
 
 這邊透過指令將映像檔上傳，採用 `QCOW2` 格式，並且設定為公開的映像檔，來提供給雲端租戶們使用：
 ```sh
-$ openstack image create "cirros-0.3.4-x86_64" \
---file cirros-0.3.4-x86_64-disk.img \
+$ openstack image create "cirros-0.3.5-x86_64" \
+--file cirros-0.3.5-x86_64-disk.img \
 --disk-format qcow2 --container-format bare \
 --public
 ```
@@ -163,26 +163,28 @@ $ openstack image create "cirros-0.3.4-x86_64" \
 
 成功後會看到以下資訊：
 ```
-+------------------+--------------------------------------+
-| Property         | Value                                |
-+------------------+--------------------------------------+
-| checksum         | ee1eca47dc88f4879d8a229cc70a07c6     |
-| container_format | bare                                 |
-| created_at       | 2016-03-30T16:04:32Z                 |
-| disk_format      | qcow2                                |
-| id               | 520bf946-436d-4fbd-a21b-62d5879c966e |
-| min_disk         | 0                                    |
-| min_ram          | 0                                    |
-| name             | cirros-0.3.4-x86_64                  |
-| owner            | 136884a1934f4d4c950e1397797b7a68     |
-| protected        | False                                |
-| size             | 13287936                             |
-| status           | active                               |
-| tags             | []                                   |
-| updated_at       | 2016-03-30T16:04:32Z                 |
-| virtual_size     | None                                 |
-| visibility       | public                               |
-+------------------+--------------------------------------+
++------------------+------------------------------------------------------+
+| Field            | Value                                                |
++------------------+------------------------------------------------------+
+| checksum         | f8ab98ff5e73ebab884d80c9dc9c7290                     |
+| container_format | bare                                                 |
+| created_at       | 2017-09-10T08:12:50Z                                 |
+| disk_format      | qcow2                                                |
+| file             | /v2/images/2419a4a9-927e-4f4c-bdd4-e14001b4deee/file |
+| id               | 2419a4a9-927e-4f4c-bdd4-e14001b4deee                 |
+| min_disk         | 0                                                    |
+| min_ram          | 0                                                    |
+| name             | cirros-0.3.5-x86_64                                  |
+| owner            | 4b2b10e3bd9748ad8f6e000879e2efe6                     |
+| protected        | False                                                |
+| schema           | /v2/schemas/image                                    |
+| size             | 13267968                                             |
+| status           | active                                               |
+| tags             |                                                      |
+| updated_at       | 2017-09-10T08:12:50Z                                 |
+| virtual_size     | None                                                 |
+| visibility       | public                                               |
++------------------+------------------------------------------------------+
 ```
 
 完成後，可以透過 Glance client 程式來查看所有映像檔，指令如下：

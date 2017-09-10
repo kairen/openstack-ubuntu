@@ -116,8 +116,8 @@ ind assid status  conf reach auth condition  last_event cnt
 
 在安裝開始前，需要先加入 Repository 來獲取套件來源：
 ```sh
-$ sudo apt-get install -y software-properties-common
-$ sudo add-apt-repository -y cloud-archive:newton
+$ sudo apt install software-properties-common
+$ sudo add-apt-repository cloud-archive:pike
 ```
 > 若要安裝 `pre-release`測試版本，修改為`cloud-archive:${ver_name}-proposed`。
 
@@ -125,21 +125,21 @@ $ sudo add-apt-repository -y cloud-archive:newton
 
 更新 Repository 與系統核心套件：
 ```sh
-$ sudo apt-get update && sudo apt-get -y dist-upgrade
+$ sudo apt update && sudo apt -y dist-upgrade
 ```
 > 如果 Upgrade 包含了新的核心套件的話請重新開機。
 
 ## OpenStack Client 安裝
 若該節點為主要操作 OpenStack 的節點，請安裝以下工具來提供叢集操作
 ```sh
-$ sudo apt-get install -y python-openstackclient
+$ sudo apt install -y python-openstackclient
 ```
 > OpenStack Client 從 Liberty 版本開始整合了各種服務的 API。
 
 ## SQL database 安裝
 大部份的 OpenStack 套件服務都是使用 SQL 資料庫來儲存訊息，該資料庫一般運作於`Controller`上。以下我們使用了 MariaDB 或 MySQL 來當作各套件的資訊儲存。OpenStack 也支援了其他資料庫，諸如：PostgreSQL。這邊透過`apt-get`來安裝 MariaDB 套件：
 ```sh
-$ sudo apt-get install -y mariadb-server python-pymysql
+$ sudo apt install -y mariadb-server python-pymysql
 ```
 > 記住 Python MySQL 和 MariaDB 是相容的。
 
@@ -151,7 +151,7 @@ $ sudo apt-get install -y mariadb-server python-pymysql
 bind-address = 10.0.0.11
 
 default-storage-engine = innodb
-innodb_file_per_table
+innodb_file_per_table = on
 max_connections = 4096
 collation-server = utf8_general_ci
 character-set-server = utf8
@@ -181,7 +181,7 @@ $ mysql -u root -p < mysql.sql
 ## Message queue 安裝
 OpenStack 使用 Message Queue 來對整個叢集提供協調與狀態訊息收集。Openstack 支援的 Message Queue 包含以下[RabbitMQ](http://www.rabbitmq.com/)、[Qpid](http://qpid.apache.org/)、[ZeroMQ](http://zeromq.org/)。但是大多數的釋出版本支援特殊的 Message Queue 服務，這邊我們使用了`RabbitMQ`來實現，並安裝於`Controller`節點上，透過`apt-get`安裝套件：
 ```sh
-$ sudo apt-get install -y rabbitmq-server
+$ sudo apt install -y rabbitmq-server
 ```
 
 安裝完成後，新增一個名稱為`openstack`的 User:
@@ -202,7 +202,7 @@ Setting permissions for user "openstack" in vhost "/" ...
 ## Memcached
 由於 Keystone 的身份認證服務機制使用了 Memcached 作為快取 Tokens，一般 memcached 服務安裝於 `Controller` 節點。而對於生產環境建議啟動防火牆、認證與加密來保護它。安裝方式如下：
 ```sh
-$ sudo apt-get install -y memcached python-memcache
+$ sudo apt install -y memcached python-memcache
 ```
 
 接著編輯 `/etc/memcached.conf` 設定檔，
