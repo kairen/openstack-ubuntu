@@ -85,8 +85,8 @@ placement admin http://10.0.0.11:8778
 ### Controller 套件安裝與設定
 在開始設定之前，首先要安裝相關套件與 OpenStack 服務套件，可以透過以下指令進行安裝：
 ```sh
-$ sudo apt-get install nova-api nova-conductor nova-consoleauth \
-nova-novncproxy nova-scheduler nova-placement-api
+$ sudo apt install -y nova-api nova-conductor nova-consoleauth \
+  nova-novncproxy nova-scheduler nova-placement-api
 ```
 
 安裝完成後，編輯`/etc/nova/nova.conf`設定檔，在`[DEFAULT]`部分加入以下內容：
@@ -193,12 +193,12 @@ $ sudo nova-manage db sync
 驗證 Cell 被建立成功：
 ```sh
 $ sudo nova-manage cell_v2 list_cells
-+-------+--------------------------------------+
-|  Name |                 UUID                 |
-+-------+--------------------------------------+
-| cell0 | 00000000-0000-0000-0000-000000000000 |
-| cell1 | dec8bd76-f8e9-4295-adb4-fd6e76829709 |
-+-------+--------------------------------------+
++-------+--------------------------------------+------------------------------------+-------------------------------------------------+
+|  Name |                 UUID                 |           Transport URL            |               Database Connection               |
++-------+--------------------------------------+------------------------------------+-------------------------------------------------+
+| cell0 | 00000000-0000-0000-0000-000000000000 |               none:/               | mysql+pymysql://nova:****@10.0.1.156/nova_cell0 |
+| cell1 | ad2b6828-b4f9-4d9e-b302-9228f9b5ba7d | rabbit://openstack:****@10.0.1.156 |    mysql+pymysql://nova:****@10.0.1.156/nova    |
++-------+--------------------------------------+------------------------------------+-------------------------------------------------+
 ```
 
 資料庫建立完成後，就可以重新啟動所有 Nova 服務：
@@ -221,7 +221,7 @@ $ sudo rm -f /var/lib/nova/nova.sqlite
 ### Compute 套件安裝與設定
 在開始設定之前，首先要安裝相關套件與 OpenStack 服務套件，可以透過以下指令進行安裝：
 ```sh
-$ sudo apt-get install -y nova-compute
+$ sudo apt install -y nova-compute
 ```
 
 安裝完成後，編輯`/etc/nova/nova.conf`設定檔，在`[DEFAULT]`部分加入以下內容：
