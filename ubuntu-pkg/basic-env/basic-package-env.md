@@ -16,13 +16,13 @@
 由於要讓各節點的時間能夠同步，我們需要安裝`ntp`套件來提供服務，這邊推薦將 NTP Server 安裝於 Controller 上，再讓其他節點進行關聯即可。
 
 ### Controller 節點設定
-在 Controller 節點上，我們可以透過`apt-get`來安裝相關套件：
+在 Controller 節點上，我們可以透過`apt`來安裝相關套件：
 ```sh
-$ sudo apt-get install -y ntp
+$ sudo apt install -y ntp
 ```
 > P.S NTP Server 也可以考慮使用 chrony，透過以下方式安裝：
 ```sh
-$ sudo apt-get install chrony
+$ sudo apt install chrony
 ```
 > 若要修改設定檔則編輯`/etc/chrony/chrony.conf`。基本設定上與 ntp 雷同。
 
@@ -52,7 +52,7 @@ $ sudo service chrony restart
 ### 其他節點設定
 在其他節點一樣安裝 NTP：
 ```sh
-$ sudo apt-get install -y ntp
+$ sudo apt install -y ntp
 ```
 
 完成安裝後，編輯`/etc/ntp.conf`檔案，註解掉所有`server`的參數，並將其設定為 Controller IP：
@@ -137,7 +137,7 @@ $ sudo apt install -y python-openstackclient
 > OpenStack Client 從 Liberty 版本開始整合了各種服務的 API。
 
 ## SQL database 安裝
-大部份的 OpenStack 套件服務都是使用 SQL 資料庫來儲存訊息，該資料庫一般運作於`Controller`上。以下我們使用了 MariaDB 或 MySQL 來當作各套件的資訊儲存。OpenStack 也支援了其他資料庫，諸如：PostgreSQL。這邊透過`apt-get`來安裝 MariaDB 套件：
+大部份的 OpenStack 套件服務都是使用 SQL 資料庫來儲存訊息，該資料庫一般運作於`Controller`上。以下我們使用了 MariaDB 或 MySQL 來當作各套件的資訊儲存。OpenStack 也支援了其他資料庫，諸如：PostgreSQL。這邊透過`apt`來安裝 MariaDB 套件：
 ```sh
 $ sudo apt install -y mariadb-server python-pymysql
 ```
@@ -179,7 +179,7 @@ $ mysql -u root -p < mysql.sql
 除了更換密碼外，其餘每個項目都輸入`yes`，並設置對應資訊。
 
 ## Message queue 安裝
-OpenStack 使用 Message Queue 來對整個叢集提供協調與狀態訊息收集。Openstack 支援的 Message Queue 包含以下[RabbitMQ](http://www.rabbitmq.com/)、[Qpid](http://qpid.apache.org/)、[ZeroMQ](http://zeromq.org/)。但是大多數的釋出版本支援特殊的 Message Queue 服務，這邊我們使用了`RabbitMQ`來實現，並安裝於`Controller`節點上，透過`apt-get`安裝套件：
+OpenStack 使用 Message Queue 來對整個叢集提供協調與狀態訊息收集。Openstack 支援的 Message Queue 包含以下[RabbitMQ](http://www.rabbitmq.com/)、[Qpid](http://qpid.apache.org/)、[ZeroMQ](http://zeromq.org/)。但是大多數的釋出版本支援特殊的 Message Queue 服務，這邊我們使用了`RabbitMQ`來實現，並安裝於`Controller`節點上，透過`apt`安裝套件：
 ```sh
 $ sudo apt install -y rabbitmq-server
 ```
