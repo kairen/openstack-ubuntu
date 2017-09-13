@@ -41,4 +41,4 @@
 | Key Manager service|Barbican|Barbican 是一個以 REST API 設計來進行安全儲存、配置以及機密的管理，如密碼、加密金鑰以及 X.509 憑證。其目的是為了適用於所有環境，包含大型短暫性雲端。|
 | Bare Metal service|Ironic|Ironic 裸機部署功能，使 IT 人員可以在實體伺服器自動化部署 OpenStack，等於能用管理虛擬機器的方式，來管理實體伺服器，有助於一次部署大量 OpenStack 主機來滿足大型 IaaS 環境的需要。|
 
-> `P.S.` 上述清單是基於 OpenStack 基金會已提供擁有正式 Install Guild 的項目撰寫。但本安裝教學也會針對一些額外服務進行安裝說明。每當有新服務釋出也會盡力更新。
+> `P.S.` 上述清單是基於 OpenStack 基金會已提供擁有正式 Install Guide 的項目撰寫。但本安裝教學也會針對一些額外服務進行安裝說明。每當有新服務釋出也會盡力更新。
