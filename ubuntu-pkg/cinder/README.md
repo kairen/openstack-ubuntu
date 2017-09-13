@@ -96,7 +96,7 @@ volumev2 admin http://10.0.0.11:8776/v2/%\(tenant_id\)s
 ### Controller 套件安裝與設定
 在開始設定之前，首先要安裝相關套件與 OpenStack 服務套件，可以透過以下指令進行安裝：
 ```sh
-$ sudo apt-get install -y cinder-api cinder-scheduler
+$ sudo apt install -y cinder-api cinder-scheduler
 ```
 
 安裝完成後，編輯`/etc/cinder/cinder.conf`設定檔，在`[DEFAULT]`部分加入以下內容：
@@ -178,7 +178,7 @@ $ sudo rm -f /var/lib/cinder/cinder.sqlite
 ### Storage 安裝前準備
 在開始設定之前，首先要安裝 `lvm2` 軟體：
 ```sh
-$ sudo apt-get install -y lvm2
+$ sudo apt install -y lvm2
 ```
 > P.S. 有些版本的 Ubuntu 預設可能已經安裝 `lvm2`。
 
@@ -224,7 +224,7 @@ PV UUID               tsYzd6-a4s8-32iL-aYdA-AMol-qtj2-4RMhvA
 ### Storage 套件安裝與設定
 在開始設定之前，首先要安裝相關套件與 OpenStack 服務套件，可以透過以下指令進行安裝：
 ```sh
-$ sudo apt-get install -y cinder-volume
+$ sudo apt install -y cinder-volume
 ```
 
 安裝完成後，編輯`/etc/cinder/cinder.conf`設定檔，並在`[DEFAULT]`部分設定以下內容：

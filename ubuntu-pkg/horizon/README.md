@@ -16,7 +16,7 @@ OpenStack 的 Horizon 提供了一套 Web-based 介面的管理儀表板，其�
 ### 套件安裝與設定
 假設基本的 OpenStack 環境都已經完成後，就可以到`Controller`節點上安裝套件：
 ```sh
-$ sudo apt-get install openstack-dashboard
+$ sudo apt install openstack-dashboard
 ```
 > 預設下 OpenStack Dashboard 會是 Ubuntu theme，可以修改`/etc/openstack-dashboard/local_settings.py`設定檔來使用官方預設樣板：
 ```

@@ -242,7 +242,7 @@ $ sudo sysctl -p
 ### Network 套件安裝與設定
 在開始設定之前，首先要安裝相關套件與 OpenStack 服務套件，可以透過以下指令進行安裝：
 ```sh
-$ sudo apt-get install -y neutron-plugin-ml2 neutron-l3-agent \
+$ sudo apt install -y neutron-plugin-ml2 neutron-l3-agent \
 neutron-dhcp-agent neutron-metadata-agent \
 neutron-openvswitch-agent
 ```
@@ -520,9 +520,9 @@ $ sudo sysctl -p
 ```
 
 ### Compute 套件安裝與設定
-首先透過`apt-get`安裝套件：
+首先透過`apt`安裝套件：
 ```sh
-$ sudo apt-get install -y neutron-openvswitch-agent
+$ sudo apt install -y neutron-openvswitch-agent
 ```
 > `P.S.`若是使用`Linux bridge`則修改成`neutron-linuxbridge-agent`。
 
