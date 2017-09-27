@@ -431,6 +431,15 @@ metadata_proxy_shared_secret = METADATA_SECRET
 ```
 [neutron]
 ...
+url = http://10.0.0.11:9696
+auth_url = http://10.0.0.11:35357
+auth_type = password
+project_domain_name = default
+user_domain_name = default
+region_name = RegionOne
+project_name = service
+username = neutron
+password = NEUTRON_PASS
 service_metadata_proxy = True
 metadata_proxy_shared_secret = METADATA_SECRET
 ```
@@ -510,8 +519,6 @@ Neutron 在 Compute 節點主要安裝 Neutron L2 Agent 來讓虛擬機連接虛
 ```
 net.ipv4.conf.all.rp_filter=0
 net.ipv4.conf.default.rp_filter=0
-net.bridge.bridge-nf-call-iptables=1
-net.bridge.bridge-nf-call-ip6tables=1
 ```
 
 完成後，可以透過 sysctl 指令來將參數載入：
