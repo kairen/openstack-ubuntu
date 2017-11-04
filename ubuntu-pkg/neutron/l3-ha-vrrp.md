@@ -1,4 +1,4 @@
-# Neutron Linxu Bridge VRRP 部署
+# Neutron VRRP 部署
 建置 VRRP（Virtual Router Redundancy Protocol）時，我們需要針對 Controller、Network、Compute 節點進行 Neutron 設定檔配置，我們將針對以下的網路架構來達到 VRRP：
 
 ![VRRP](images/vrrp.png)
@@ -49,7 +49,7 @@ enable_ipset = True
 $ sudo service neutron-server restart
 ```
 
-# Network 節點配置
+# Network Linxu Bridge 節點配置
 在 Network 節點編輯 ML2 Plugins 配置檔 ```/etc/neutron/plugins/ml2/linuxbridge_agent.ini```，並在```[linux_bridge]```部分加入以下：
 ```sh
 [linux_bridge]
@@ -97,6 +97,51 @@ sudo service neutron-dhcp-agent restart
 sudo service neutron-metadata-agent restart
 sudo service neutron-l3-agent restart
 ```
+
+# Network OVS 節點配置
+在 Network 節點編輯 ML2 Plugins 配置檔 ```/etc/neutron/plugins/ml2/ml2_conf.ini```
+
+在```[ovs]```部分加入以下內容：
+```sh
+[ovs]
+local_ip = TUNNEL_INTERFACE_IP_ADDRESS
+bridge_mappings = external:br-ex
+```
+
+在```[agent]```部分加入以下內容：
+```sh
+[agent]
+enable_distributed_routing = True
+tunnel_types = vxlan
+l2_population = True
+```
+
+在```[securitygroup]```部分加入以下內容：
+```sh
+[securitygroup]
+enable_ipset = True
+enable_security_group = True
+firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
+```
+
+完成後，編輯 L3 Plugins 配置檔``` /etc/neutron/l3_agent.ini```，並```[DEFAULT]```部分加入以下內容：
+```sh
+[DEFAULT]
+ha_vrrp_auth_password = password
+interface_driver = openvswitch
+external_network_bridge =
+agent_mode = dvr_snat
+```
+
+重新啟動 Neutron 所有服務：
+```sh
+sudo service openvswitch-switch restart
+sudo service neutron-openvswitch-agent restart
+sudo service neutron-dhcp-agent restart
+sudo service neutron-metadata-agent restart
+sudo service neutron-l3-agent restart
+```
+
 
 # 驗證服務
 首先到 Controller 透過 neutron-client 來驗證服務都正確啟動：
