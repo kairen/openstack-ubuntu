@@ -98,7 +98,7 @@ sudo service neutron-metadata-agent restart
 sudo service neutron-l3-agent restart
 ```
 
-# Network ovs 節點配置
+# Network OVS 節點配置
 在 Network 節點編輯 ML2 Plugins 配置檔 ```/etc/neutron/plugins/ml2/ml2_conf.ini```
 
 在```[ovs]```部分加入以下內容：
